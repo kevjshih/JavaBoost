@@ -1,6 +1,8 @@
 package weaklearning;
 
 public interface WeakLearner{
-    void train(float[][] data, int labels[]);
-    int[] classify(float[][] data);
+    // trains on data and returns the weighted loss
+    double train(float[][] data, int labels[], float[] weights);
+
+    double[] classify(float[][] data);
 }
