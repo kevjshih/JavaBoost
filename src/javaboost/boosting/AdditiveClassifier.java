@@ -1,8 +1,8 @@
 package javaboost.boosting;
 
 import java.util.List;
-import weaklearning.WeakClassifier;
-import util.Utils;
+import javaboost.weaklearning.WeakClassifier;
+import javaboost.util.Utils;
 
 public class AdditiveClassifier{
     private List<WeakClassifier> m_classifiers = null;

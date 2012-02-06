@@ -1,5 +1,8 @@
 package javaboost.util;
 
+import javaboost.conditioning.Conditional;
+import java.util.List;
+
 public class Utils{
     private Utils() {
 	// error if it is ever instantiated
@@ -92,6 +95,16 @@ public class Utils{
 	for(int i = 0; i < a.length; ++i) {
 	    a[i] = a[i]/sum;
 	}
+    }
+
+    public static boolean isValid(float[] features, List<Conditional> conditions) {
+	for(Conditional cond : conditions) {
+	    if(!cond.isValid(features)) {
+		return false;
+	    }
+	}
+	return true;
+
     }
 
 }

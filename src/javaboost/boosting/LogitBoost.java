@@ -3,8 +3,8 @@ package javaboost.boosting;
 import java.util.List;
 import java.util.ArrayList;
 
-import weaklearning.*;
-import util.*;
+import javaboost.weaklearning.*;
+import javaboost.util.*;
 
 public class LogitBoost{
 
