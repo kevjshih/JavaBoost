@@ -4,7 +4,7 @@ public class GreaterThanConditional implements Conditional{
     private float m_minThresh = 0;
     private int m_column;
 
-    public GreaterThanConditonal(float minThresh, int column) {
+    public GreaterThanConditional(float minThresh, int column) {
 	m_minThresh = minThresh;
     }
 
