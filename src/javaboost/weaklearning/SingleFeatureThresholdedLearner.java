@@ -6,6 +6,7 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
     private double m_leftConf = 0;
     private double m_rightConf = 0;
 
+    private double m_storedLoss = 0;
 
     public SingleFeatureThresholdedLearner(int featColumn, float threshold) {
 	m_featColumn = featColumn;
@@ -40,11 +41,11 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	m_rightConf = 0.5*Math.log((1+weightedPos_r)/(1+weightedNeg_r));
 
 	//return the weighted loss
-	double loss = Math.exp(-m_leftConf)*weightedPos_l +
+	m_storedLoss = Math.exp(-m_leftConf)*weightedPos_l +
 	    Math.exp(m_leftConf)*weightedNeg_l +
 	    Math.exp(-m_rightConf)*weightedPos_r +
 	    Math.exp(m_rightConf)*weightedNeg_r;
-	return loss;
+	return m_storedLoss;
     }
 
     public WeakClassifier buildLearnedClassifier() {
@@ -52,6 +53,10 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 						      m_threshold,
 						      m_leftConf,
 						      m_rightConf);
+    }
+
+    public double getLearnedLoss() {
+	return m_storedLoss;
     }
 
 }
