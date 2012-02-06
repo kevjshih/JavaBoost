@@ -1,4 +1,4 @@
-package util;
+package javaboost.util;
 
 public class Utils{
     private Utils() {

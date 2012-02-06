@@ -1,4 +1,4 @@
-package weaklearning;
+package javaboost.weaklearning;
 
 public interface WeakLearner{
     // trains on data and returns the weighted loss

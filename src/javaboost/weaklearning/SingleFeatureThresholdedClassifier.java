@@ -1,4 +1,4 @@
-package weaklearning;
+package javaboost.weaklearning;
 
 public class SingleFeatureThresholdedClassifier implements WeakClassifier{
     private int m_featColumn;

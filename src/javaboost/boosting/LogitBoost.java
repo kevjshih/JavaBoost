@@ -1,4 +1,4 @@
-package boosting;
+package javaboost.boosting;
 
 import java.util.List;
 import java.util.ArrayList;
