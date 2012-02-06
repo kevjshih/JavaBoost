@@ -13,6 +13,8 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
     }
 
     public double train(float[][] data, int labels[], float[] weights){
+	m_leftConf = 0;
+	m_rightConf = 0;
 	int weightedPos_l = 0;
 	int weightedNeg_l = 0;
 	int weightedPos_r = 0;
@@ -45,14 +47,11 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	return loss;
     }
 
-    public double[] classify(float[][] data){
-	double[] output = new double[data.length];
-	for(int i = 0; i < data.length; ++i) {
-		output[i] = data[i][m_featColumn] < m_threshold ? m_leftConf
-		    : m_rightConf;
-
-	}
-	return output;
+    public WeakClassifier buildLearnedClassifier() {
+	return new SingleFeatureThresholdedClassifier(m_featColumn,
+						      m_threshold,
+						      m_leftConf,
+						      m_rightConf);
     }
 
 }

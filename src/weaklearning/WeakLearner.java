@@ -4,5 +4,5 @@ public interface WeakLearner{
     // trains on data and returns the weighted loss
     double train(float[][] data, int labels[], float[] weights);
 
-    double[] classify(float[][] data);
+    WeakClassifier buildLearnedClassifier();
 }
