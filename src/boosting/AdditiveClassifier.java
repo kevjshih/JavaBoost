@@ -1,20 +1,20 @@
 package boosting;
 
 import java.util.List;
-import weaklearning.WeakLearner;
+import weaklearning.WeakClassifier;
 import util.Utils;
 
 public class AdditiveClassifier{
-    private List<WeakLearner> m_learners = null;
+    private List<WeakClassifier> m_classifiers = null;
 
-    public AdditiveClassifier(List<WeakLearner> learners) {
-	m_learners = learners;
+    public AdditiveClassifier(List<WeakClassifier> classifiers) {
+	m_classifiers = classifiers;
     }
 
     public double[] classify(float[][] data) {
 	double[] output = new double[data.length];
-	for(WeakLearner wl : m_learners) {
-	    output = Utils.addVectors(output, wl.classify(data));
+	for(WeakClassifier wc: m_classifiers) {
+	    output = Utils.addVectors(output, wc.classify(data));
 	}
 
 	return output;

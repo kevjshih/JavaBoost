@@ -12,13 +12,13 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	m_threshold = threshold;
     }
 
-    public double train(float[][] data, int labels[], float[] weights){
+    public double train(float[][] data, int labels[], double[] weights){
 	m_leftConf = 0;
 	m_rightConf = 0;
-	int weightedPos_l = 0;
-	int weightedNeg_l = 0;
-	int weightedPos_r = 0;
-	int weightedNeg_r = 0;
+	double weightedPos_l = 0;
+	double weightedNeg_l = 0;
+	double weightedPos_r = 0;
+	double weightedNeg_r = 0;
 
 	for(int i = 0; i < data.length; ++i) {
 	    if(data[i][m_featColumn] < m_threshold) {
