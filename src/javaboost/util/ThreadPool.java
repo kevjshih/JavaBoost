@@ -4,6 +4,9 @@ package javaboost.util;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+// This class wraps the ExecutorService instance in a singleton construct
+
+
 public class ThreadPool{
     private static ExecutorService m_instance = null;
     private static int m_numThreads = 0;

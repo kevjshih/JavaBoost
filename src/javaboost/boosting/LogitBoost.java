@@ -125,7 +125,7 @@ public class LogitBoost{
 	    Utils.normalizeVector(weights);
 
 	}
-	threadpool.shutdown();
+
 	return new AdditiveClassifier(output);
     }
 

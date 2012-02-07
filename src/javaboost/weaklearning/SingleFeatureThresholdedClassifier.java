@@ -21,6 +21,9 @@ public class SingleFeatureThresholdedClassifier implements WeakClassifier{
     public double[] classify(float[][] data){
 	double[] output = new double[data.length];
 	for(int i = 0; i < data.length; ++i) {
+	    output[i] = 0;
+	}
+	for(int i = 0; i < data.length; ++i) {
 		output[i] = data[i][m_featColumn] < m_threshold ? m_leftConf
 		    : m_rightConf;
 
