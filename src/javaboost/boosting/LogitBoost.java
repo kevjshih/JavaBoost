@@ -65,7 +65,7 @@ public class LogitBoost{
 					   List<WeakLearner> learners,
 						     int maxIterations,
 						     int numThreads){
-	ExecutorService threadpool = Executors.newFixedThreadPool(numThreads);
+	ExecutorService threadpool = ThreadPool.getThreadpoolInstance(numThreads);
 	List<WeakClassifier> output = new ArrayList<WeakClassifier>();
 
         int numExamples = labels.length;
@@ -125,6 +125,7 @@ public class LogitBoost{
 	    Utils.normalizeVector(weights);
 
 	}
+	threadpool.shutdown();
 	return new AdditiveClassifier(output);
     }
 
