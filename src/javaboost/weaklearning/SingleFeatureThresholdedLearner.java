@@ -13,7 +13,7 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	m_threshold = threshold;
     }
 
-    public double train(float[][] data, int labels[], double[] weights){
+    public final double train(final float[][] data,final int labels[],final double[] weights){
 	m_leftConf = 0;
 	m_rightConf = 0;
 	double weightedPos_l = 0;
@@ -40,7 +40,7 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	m_leftConf = 0.5*Math.log((1+weightedPos_l)/(1+weightedNeg_l));
 	m_rightConf = 0.5*Math.log((1+weightedPos_r)/(1+weightedNeg_r));
 
-	//return the weighted loss
+	//return the weighted loss and cache it for parallel runs
 	m_storedLoss = Math.exp(-m_leftConf)*weightedPos_l +
 	    Math.exp(m_leftConf)*weightedNeg_l +
 	    Math.exp(-m_rightConf)*weightedPos_r +

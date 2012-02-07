@@ -9,7 +9,7 @@ public class Utils{
 	throw new AssertionError();
     }
 
-    public static float[] addVectors(float[] a, float[] b) {
+    public static final float[] addVectors(float[] a, float[] b) {
 	assert(a.length == b.length);
 
 	float[] output = new float[a.length];
@@ -22,7 +22,7 @@ public class Utils{
 
     }
 
-    public static double[] addVectors(double[] a, double[] b) {
+    public static final double[] addVectors(double[] a, double[] b) {
 	assert(a.length == b.length);
 
 	double[] output = new double[a.length];
@@ -34,7 +34,7 @@ public class Utils{
 	return output;
     }
 
-    public static float[] dotMultiplyVectors(float[] a, float[] b) {
+    public static final float[] dotMultiplyVectors(float[] a, float[] b) {
 	assert(a.length == b.length);
 	float[] output = new float[a.length];
 	for(int i = 0; i < output.length; ++i) {
@@ -44,7 +44,7 @@ public class Utils{
     }
 
 
-    public static double[] dotMultiplyVectors(double[] a, double[] b) {
+    public static final double[] dotMultiplyVectors(double[] a, double[] b) {
 	assert(a.length == b.length);
 	double[] output = new double[a.length];
 	for(int i = 0; i < output.length; ++i) {
@@ -54,7 +54,7 @@ public class Utils{
     }
 
 
-    public static double[] dotMultiplyVectors(double[] a, int[] b) {
+    public static final double[] dotMultiplyVectors(double[] a, int[] b) {
 	assert(a.length == b.length);
 	double[] output = new double[a.length];
 	for(int i = 0; i < output.length; ++i) {
@@ -64,7 +64,7 @@ public class Utils{
     }
 
 
-    public static float[] dotMultiplyVectors(float[] a, int[] b) {
+    public static final float[] dotMultiplyVectors(float[] a, int[] b) {
 	assert(a.length == b.length);
 	float[] output = new float[a.length];
 	for(int i = 0; i < output.length; ++i) {
@@ -76,7 +76,7 @@ public class Utils{
 
 
 
-    public static void normalizeVector(float[] a) {
+    public static final void normalizeVector(float[] a) {
 	float sum = 0;
 	for(int i = 0; i < a.length; ++i) {
 	    sum += a[i];
@@ -87,7 +87,7 @@ public class Utils{
     }
 
 
-    public static void normalizeVector(double[] a) {
+    public static final void normalizeVector(double[] a) {
 	double sum = 0;
 	for(int i = 0; i < a.length; ++i) {
 	    sum += a[i];
@@ -97,7 +97,7 @@ public class Utils{
 	}
     }
 
-    public static boolean isValid(float[] features, List<Conditional> conditions) {
+    public static final boolean isValid(float[] features, List<Conditional> conditions) {
 	for(Conditional cond : conditions) {
 	    if(!cond.isValid(features)) {
 		return false;

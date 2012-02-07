@@ -79,12 +79,15 @@ public class LogitBoost{
 	    confs[i] = 0; // just in case
 	}
 
+	final Collection<Callable<Object>> tasks
+	    = new ArrayList<Callable<Object>>(learners.size());
+
 	for(int t = 0; t < maxIterations; ++t) {
 	    //WeakLearner bestLearner = null;
 	    //double bestLoss = 1000; // anything greater than 1 should work
 	    final double[] weightsCpy = weights;
-	    final Collection<Callable<Object>> tasks
-		= new ArrayList<Callable<Object>>();
+	    tasks.clear();
+
 	    for(final WeakLearner wl: learners) {
 		tasks.add(Executors.callable(new Runnable() {
 			public void run() {

@@ -17,7 +17,7 @@ public class ConditionalAndLearner implements WeakLearner{
 	m_cond = conditions;
     }
 
-    public double train(float[][] data, int labels[], double[] weights) {
+    public double train(final float[][] data,final int labels[],final double[] weights) {
 	m_trueConf = 0;
 	double weightedTruePos = 0;
 	double weightedTrueNeg = 0;
