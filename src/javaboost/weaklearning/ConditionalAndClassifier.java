@@ -21,4 +21,12 @@ public class ConditionalAndClassifier implements WeakClassifier{
 	}
 	return output;
     }
+
+    public String toString() {
+	String description = "And conf("+m_trueConf+"):";
+	for(Conditional cond : m_cond) {
+	    description = description + "&" + m_cond.toString();
+	}
+	return description;
+    }
 }

@@ -24,4 +24,10 @@ public class AdditiveClassifier{
 	return output;
     }
 
+    public void listClassifiers() {
+	for(int i = 0; i < m_classifiers.size(); ++i) {
+	    System.out.println(m_classifiers.get(i));
+	}
+    }
+
 }
