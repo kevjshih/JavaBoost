@@ -30,9 +30,9 @@ public class SingleFeatureThresholdedClassifier implements WeakClassifier{
     }
 
     public String toString() {
-	return new String("Threshold at: "
+	return new String("Threshold: "
 			  +m_featColumn
-			  +"-"
+			  +"@"
 			  +m_threshold
 			  +" less: "
 			  +m_leftConf

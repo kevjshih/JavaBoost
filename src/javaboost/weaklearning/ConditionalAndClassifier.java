@@ -25,8 +25,9 @@ public class ConditionalAndClassifier implements WeakClassifier{
     public String toString() {
 	String description = "And conf("+m_trueConf+"):";
 	for(Conditional cond : m_cond) {
-	    description = description + "&" + m_cond.toString();
+	    description.concat(m_cond.toString() + "&");
 	}
+	description = description.substring(0, description.length()-1);
 	return description;
     }
 }
