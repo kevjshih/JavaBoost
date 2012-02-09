@@ -16,17 +16,22 @@ public class LogitBoost{
     public static AdditiveClassifier train(float[][] data,
 					   int[] labels,
 					   List<WeakLearner> learners,
-					   int maxIterations){
+					   int maxIterations,
+					   double[] weights){
 	List<WeakClassifier> output = new ArrayList<WeakClassifier>();
 
         int numExamples = labels.length;
-
-	double[] weights = new double[numExamples];
+	double initVal = 1.0/numExamples;
+	if(weights == null){
+	    weights = new double[numExamples];
+	    for(int i = 0; i < numExamples; ++i) {
+		weights[i] = initVal;
+	    }
+	}
 	double[] confs = new double[numExamples];
 	// initialize to uniform weights
-	double initVal = 1.0/numExamples;
+
 	for(int i = 0; i < numExamples; ++i) {
-	    weights[i] = initVal;
 	    confs[i] = 0; // just in case
 	}
 
@@ -64,20 +69,27 @@ public class LogitBoost{
 					   final int[] labels,
 					   List<WeakLearner> learners,
 						     int maxIterations,
-						     int numThreads){
+						     int numThreads, double[] weights){
 	ExecutorService threadpool = ThreadPool.getThreadpoolInstance(numThreads);
 	List<WeakClassifier> output = new ArrayList<WeakClassifier>();
 
         int numExamples = labels.length;
 
-	double[] weights = new double[numExamples];
+
+	double initVal = 1.0/numExamples;
+	if(weights == null){
+	    weights = new double[numExamples];
+	    for(int i = 0; i < numExamples; ++i) {
+		weights[i] = initVal;
+	    }
+	}
 	double[] confs = new double[numExamples];
 	// initialize to uniform weights
-	double initVal = 1.0/numExamples;
+
 	for(int i = 0; i < numExamples; ++i) {
-	    weights[i] = initVal;
 	    confs[i] = 0; // just in case
 	}
+
 
 	final Collection<Callable<Object>> tasks
 	    = new ArrayList<Callable<Object>>(learners.size());

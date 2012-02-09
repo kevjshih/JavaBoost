@@ -97,7 +97,7 @@ public final class Utils{
 	}
     }
 
-    public static boolean isValid(float[] features, List<Conditional> conditions) {
+    public static boolean isValidAnd(float[] features, List<Conditional> conditions) {
 	for(Conditional cond : conditions) {
 	    if(!cond.isValid(features)) {
 		return false;

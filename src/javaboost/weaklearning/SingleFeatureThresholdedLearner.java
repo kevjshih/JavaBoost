@@ -21,6 +21,8 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	double weightedPos_r = 0;
 	double weightedNeg_r = 0;
 
+	double regularizer = 1/data.length;
+
 	for(int i = 0; i < data.length; ++i) {
 	    if(data[i][m_featColumn] < m_threshold) {
 		if(labels[i] >= 0){
@@ -37,8 +39,8 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	    }
 	}
 	//regularize with the extra 1 in the numerator and denominator
-	m_leftConf = 0.5*Math.log((1+weightedPos_l)/(1+weightedNeg_l));
-	m_rightConf = 0.5*Math.log((1+weightedPos_r)/(1+weightedNeg_r));
+	m_leftConf = 0.5*Math.log((regularizer+weightedPos_l)/(regularizer+weightedNeg_l));
+	m_rightConf = 0.5*Math.log((regularizer+weightedPos_r)/(regularizer+weightedNeg_r));
 
 	//return the weighted loss and cache it for parallel runs
 	m_storedLoss = Math.exp(-m_leftConf)*weightedPos_l +
