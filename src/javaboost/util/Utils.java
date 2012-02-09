@@ -97,13 +97,36 @@ public final class Utils{
 	}
     }
 
-    public static boolean isValidAnd(float[] features, List<Conditional> conditions) {
-	for(Conditional cond : conditions) {
-	    if(!cond.isValid(features)) {
+    public static boolean isValid(float[] features, List<Conditional> conditions, byte logicOp) {
+	switch(logicOp) {
+	case LogicOps.AND:
+	    for(Conditional cond : conditions) {
+		if(!cond.isValid(features)) {
+		    return false;
+		}
+	    }
+	    return true;
+	case LogicOps.XOR:
+	    int trueCount = 0;
+	    for(Conditional cond : conditions) {
+		if(cond.isValid(features)) {
+		    ++trueCount;
+		    if(trueCount > 1) {
+			return false;
+		    }
+		}
+
+	    }
+	    if(trueCount == 0){
 		return false;
 	    }
+	    else{
+		return true;
+	    }
+	default:
+	    return false;
+
 	}
-	return true;
 
     }
 
