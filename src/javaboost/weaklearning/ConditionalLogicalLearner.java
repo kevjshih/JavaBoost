@@ -4,7 +4,7 @@ import java.util.List;
 
 import javaboost.conditioning.Conditional;
 import javaboost.util.Utils;
-import javaboost.util.LogicOps;
+import javaboost.conditioning.LogicOps;
 
 public class ConditionalLogicalLearner implements WeakLearner{
 
@@ -22,7 +22,7 @@ public class ConditionalLogicalLearner implements WeakLearner{
 	m_logicOp = logicOp;
     }
 
-    public double train(final float[][] data,final int labels[],final double[] weights) {
+    public double train(final float[][] data,final int[] labels,final double[] weights) {
 	m_trueConf = 0;
 	m_falseConf = 0;
 	// if true
@@ -54,10 +54,15 @@ public class ConditionalLogicalLearner implements WeakLearner{
 	m_trueConf = 0.5*Math.log((regularizer+weightedTruePos)/(regularizer+weightedTrueNeg));
 	m_falseConf = 0.5*Math.log((regularizer+weightedFalsePos)/(regularizer+weightedFalseNeg));
 
+
+
 	m_storedLoss = Math.exp(-m_trueConf)*weightedTruePos +
 	    Math.exp(m_trueConf)*weightedTrueNeg +
 	    Math.exp(-m_falseConf)*weightedFalsePos +
 	    Math.exp(m_falseConf)*weightedFalseNeg;
+
+	m_storedLoss = m_storedLoss/(1+m_storedLoss);
+
 	return m_storedLoss;
     }
 

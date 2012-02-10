@@ -38,7 +38,7 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 		}
 	    }
 	}
-	//regularize with the extra 1 in the numerator and denominator
+
 	m_leftConf = 0.5*Math.log((regularizer+weightedPos_l)/(regularizer+weightedNeg_l));
 	m_rightConf = 0.5*Math.log((regularizer+weightedPos_r)/(regularizer+weightedNeg_r));
 
@@ -47,6 +47,9 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	    Math.exp(m_leftConf)*weightedNeg_l +
 	    Math.exp(-m_rightConf)*weightedPos_r +
 	    Math.exp(m_rightConf)*weightedNeg_r;
+
+	m_storedLoss = m_storedLoss/(1+m_storedLoss);
+
 	return m_storedLoss;
     }
 

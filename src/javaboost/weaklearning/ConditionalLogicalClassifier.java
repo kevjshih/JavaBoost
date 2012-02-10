@@ -2,7 +2,7 @@ package javaboost.weaklearning;
 
 import java.util.List;
 
-import javaboost.conditioning.Conditional;
+import javaboost.conditioning.*;
 import javaboost.util.Utils;
 
 public class ConditionalLogicalClassifier implements WeakClassifier{
@@ -21,13 +21,13 @@ public class ConditionalLogicalClassifier implements WeakClassifier{
     public double[] classify(float[][] data) {
 	double[] output = new double[data.length];
 	for(int i = 0; i < data.length; ++i) {
-	    output[i] = Utils.isValid(data[i], m_cond, m_logicOp) ? m_trueConf : 0;
+	    output[i] = Utils.isValid(data[i], m_cond, m_logicOp) ? m_trueConf : m_falseConf;
 	}
 	return output;
     }
 
     public String toString() {
-	String description = m_logicOp + " conf T:"+m_trueConf+" F:"+m_falseConf+":";
+	String description = LogicOps.getName(m_logicOp) + " conf T:"+m_trueConf+" F:"+m_falseConf+":";
 	for(Conditional cond : m_cond) {
 	    description = description.concat(cond.toString() + "&");
 	}

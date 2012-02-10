@@ -48,7 +48,7 @@ public class LogitBoost{
 	    // pick the best learner and construct corresponding classifier
 	    WeakClassifier bestClassifier = bestLearner.buildLearnedClassifier();
 	    output.add(bestClassifier);
-	    System.out.println("Iteration: " + t  + " weighted loss: " + bestLoss);
+
 
 	    // update weights
 	    confs = Utils.addVectors(bestClassifier.classify(data), confs);
@@ -58,6 +58,11 @@ public class LogitBoost{
 	    for(int i = 0; i < labelDotConfs.length; ++i) {
 		weights[i] = 1/(1+Math.exp(labelDotConfs[i]));
 	    }
+
+	    System.out.println("Iteration: " + t
+			       + " weighted loss: " + bestLoss
+			       + " mean weight: "+ Utils.mean(weights));
+
 
 	    Utils.normalizeVector(weights);
 
@@ -126,16 +131,22 @@ public class LogitBoost{
 		    // pick the best learner and construct corresponding classifier
 	    WeakClassifier bestClassifier = bestLearner.buildLearnedClassifier();
 	    output.add(bestClassifier);
-	    System.out.println("Iteration: " + t  + " weighted loss: " + bestLoss);
+
 
 	    // update weights
 	    confs = Utils.addVectors(bestClassifier.classify(data), confs);
+
 
 	    double[] labelDotConfs = Utils.dotMultiplyVectors(confs, labels);
 
 	    for(int i = 0; i < labelDotConfs.length; ++i) {
 		weights[i] = 1/(1+Math.exp(labelDotConfs[i]));
 	    }
+
+	    System.out.println("Iteration: " + t
+			       + " weighted loss: " + bestLoss
+			       + " mean weight: "+ Utils.mean(weights));
+
 
 	    Utils.normalizeVector(weights);
 

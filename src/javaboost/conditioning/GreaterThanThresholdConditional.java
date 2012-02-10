@@ -11,7 +11,7 @@ public final class GreaterThanThresholdConditional implements Conditional{
     }
 
     public boolean isValid(final float[] val) {
-	    return val[m_column] > m_minThresh;
+	return val[m_column] > m_minThresh;
     }
 
     public String toString() {

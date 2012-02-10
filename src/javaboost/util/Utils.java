@@ -1,6 +1,7 @@
 package javaboost.util;
 
 import javaboost.conditioning.Conditional;
+import javaboost.conditioning.LogicOps;
 import java.util.List;
 
 public final class Utils{
@@ -95,6 +96,14 @@ public final class Utils{
 	for(int i = 0; i < a.length; ++i) {
 	    a[i] = a[i]/sum;
 	}
+    }
+
+    public static double mean(double[] a) {
+	double sum = 0;
+	for(int i = 0; i < a.length; ++i) {
+	    sum += a[i];
+	}
+	return sum/a.length;
     }
 
     public static boolean isValid(float[] features, List<Conditional> conditions, byte logicOp) {
