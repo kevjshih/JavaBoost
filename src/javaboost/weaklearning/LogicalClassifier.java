@@ -5,13 +5,13 @@ import java.util.List;
 import javaboost.conditioning.*;
 import javaboost.util.Utils;
 
-public class ConditionalLogicalClassifier implements WeakClassifier{
+public class LogicalClassifier implements WeakClassifier{
     private List<Conditional> m_cond = null;
     private double m_trueConf = 0;
     private double m_falseConf = 0;
     private byte m_logicOp;
 
-    public ConditionalLogicalClassifier(List<Conditional> conditions, double trueConf, double falseConf, byte logicOp) {
+    public LogicalClassifier(List<Conditional> conditions, double trueConf, double falseConf, byte logicOp) {
 	m_trueConf = trueConf;
 	m_falseConf = falseConf;
 	m_cond = conditions;

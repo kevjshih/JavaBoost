@@ -6,7 +6,7 @@ import javaboost.conditioning.Conditional;
 import javaboost.util.Utils;
 import javaboost.conditioning.LogicOps;
 
-public class ConditionalLogicalLearner implements WeakLearner{
+public class LogicalLearner implements WeakLearner{
 
 
     private List<Conditional> m_cond = null;
@@ -17,7 +17,7 @@ public class ConditionalLogicalLearner implements WeakLearner{
 
     private byte m_logicOp;
 
-    public ConditionalLogicalLearner(List<Conditional> conditions, byte logicOp) {
+    public LogicalLearner(List<Conditional> conditions, byte logicOp) {
 	m_cond = conditions;
 	m_logicOp = logicOp;
     }
@@ -54,8 +54,6 @@ public class ConditionalLogicalLearner implements WeakLearner{
 	m_trueConf = 0.5*Math.log((regularizer+weightedTruePos)/(regularizer+weightedTrueNeg));
 	m_falseConf = 0.5*Math.log((regularizer+weightedFalsePos)/(regularizer+weightedFalseNeg));
 
-
-
 	m_storedLoss = Math.exp(-m_trueConf)*weightedTruePos +
 	    Math.exp(m_trueConf)*weightedTrueNeg +
 	    Math.exp(-m_falseConf)*weightedFalsePos +
@@ -67,7 +65,7 @@ public class ConditionalLogicalLearner implements WeakLearner{
     }
 
     public WeakClassifier buildLearnedClassifier() {
-	return new ConditionalLogicalClassifier(m_cond, m_trueConf, m_falseConf, m_logicOp);
+	return new LogicalClassifier(m_cond, m_trueConf, m_falseConf, m_logicOp);
     }
 
     public double getLearnedLoss() {
