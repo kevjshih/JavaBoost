@@ -5,7 +5,7 @@ import java.util.Comparator;
 public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
     private int m_featColumn = -1;
     private float[] m_thresholds = null;
-    private float m_chosenThreshold = -1;
+    private int m_chosenThreshold = -1;
     private double m_leftConf = 0;
     private double m_rightConf = 0;
     private double m_storedLoss = 0;
@@ -19,10 +19,33 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	public MonotonicityManager() {
 	    Arrays.sort(m_thresholds);
 	    confs = new double[m_thresholds.length +1];
+	    for(int i = 0; i < confs.length; ++i) {
+		confs[i] = 0;
+	    }
 	}
 
-	double[] adjustConfidences(double leftConf, double rightConf, int thresholdIdx) {
-	    return null;
+	public double[] adjustConfidences(double leftConf, double rightConf, int thresholdIdx) {
+	    if(rightConf < leftConf) {
+
+		// tune down leftConf
+		double rightResult = rightConf + confs[thresholdIdx+1];
+		double leftResult = leftConf + confs[thresholdIdx];
+		if(rightResult < leftResult) {
+		    leftConf = rightResult - confs[thresholdIdx];
+		}
+	    }
+	    double[] outConf = {leftConf, rightConf};
+	    return outConf;
+	}
+
+	public void addConfidences(double leftConf, double rightConf, int thresholdIdx) {
+	    for(int i = 0; i < confs.length; ++i) {
+		if(i <= thresholdIdx) {
+		    confs[i] += leftConf;
+		}else {
+		    confs[i] += rightConf;
+		}
+	    }
 	}
 
     }
@@ -110,15 +133,16 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	}
 
 	m_storedLoss = bestLoss;
-	m_chosenThreshold = m_thresholds[bestThresh];
+	m_chosenThreshold = bestThresh;
 	m_leftConf = leftConfs[bestThresh];
 	m_rightConf = rightConfs[bestThresh];
 	return m_storedLoss;
     }
 
     public WeakClassifier buildLearnedClassifier() {
+	m_manager.addConfidences(m_leftConf, m_rightConf, m_chosenThreshold);
 	return new SingleFeatureThresholdedClassifier(m_featColumn,
-						      m_chosenThreshold,
+						      m_thresholds[m_chosenThreshold],
 						      m_leftConf,
 						      m_rightConf);
     }
