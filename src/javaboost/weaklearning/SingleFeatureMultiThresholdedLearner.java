@@ -63,7 +63,7 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
     public final double train(final float[][] data, final int labels[], final double[] weights) {
 	m_leftConf = 0;
 	m_rightConf = 0;
-	double regularizer = 1/data.length;
+	double regularizer = 1.0/data.length;
 
 	// aggregate the data
 	double [][] dataLabelsSorted = new double[data.length][3];
@@ -78,34 +78,35 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 		    return Double.compare(row[0], row2[0]);
 		}
 	    });
+
+
 	int numBins = m_thresholds.length +1;
 	double[] cumPosBins = new double[numBins];
 	double[] cumNegBins = new double[numBins];
-	int[] threshIdx = new int[m_thresholds.length];
+
 	int binIdx = 0;
-	for(int i = 0; i < data.length; ++i) {
+
+	for(int i = 0; i < dataLabelsSorted.length; ++i) {
 	    while(binIdx < m_thresholds.length &&
-		  data[i][0] > m_thresholds[binIdx]) {
-		threshIdx[binIdx] = i;
-		binIdx++;
+		  dataLabelsSorted[i][0] > m_thresholds[binIdx]) {
+		++binIdx;
 	    }
-	    if(data[i][1] >= 0) {
-		cumPosBins[binIdx]+= data[i][2];
+	    if(dataLabelsSorted[i][1] >= 0) {
+		cumPosBins[binIdx]+= dataLabelsSorted[i][2];
 	    }else{
-		cumNegBins[binIdx]+= data[i][2];
+		cumNegBins[binIdx]+= dataLabelsSorted[i][2];
 	    }
 	}
 
-	double posSum = 0;
-	double negSum = 0;
-	for(int i = 0; i < numBins; ++i) {
-	    posSum += cumPosBins[i];
-	    negSum += cumNegBins[i];
-	    if(i > 0) {
+	// compute sum total positive and negative weights
+	// and the cummulative sums
+
+	for(int i = 1; i < numBins; ++i) {
 		cumPosBins[i] += cumPosBins[i-1];
 		cumNegBins[i] += cumNegBins[i-1];
-	    }
 	}
+	double posSum = cumPosBins[numBins-1];
+	double negSum = cumNegBins[numBins-1];
 
 	double[] leftConfs = new double[m_thresholds.length];
 	double[] rightConfs = new double[m_thresholds.length];
@@ -117,10 +118,12 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	    double rightPos = posSum - cumPosBins[t];
 	    double rightNeg = negSum - cumNegBins[t];
 	    leftConfs[t] = 0.5*Math.log((regularizer+cumPosBins[t])/(regularizer+cumNegBins[t]));
-	    rightConfs[t] = 0.5*Math.log((regularizer+rightPos)/(regularizer+negSum));
-	    double[] adjusted = m_manager.adjustConfidences(leftConfs[t], rightConfs[t], t);
-	    leftConfs[t] = adjusted[0];
-	    rightConfs[t] = adjusted[1];
+	    rightConfs[t] = 0.5*Math.log((regularizer+rightPos)/(regularizer+rightNeg));
+	    if(m_isMonotonic) {
+		double[] adjusted = m_manager.adjustConfidences(leftConfs[t], rightConfs[t], t);
+		leftConfs[t] = adjusted[0];
+		rightConfs[t] = adjusted[1];
+	    }
 	    losses[t] = Math.exp(-leftConfs[t])*cumPosBins[t] +
 		Math.exp(leftConfs[t])*cumNegBins[t] +
 		Math.exp(-rightConfs[t])*rightPos +
@@ -131,16 +134,18 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 		bestLoss = losses[t];
 	    }
 	}
-
 	m_storedLoss = bestLoss;
 	m_chosenThreshold = bestThresh;
 	m_leftConf = leftConfs[bestThresh];
 	m_rightConf = rightConfs[bestThresh];
+
 	return m_storedLoss;
     }
 
     public WeakClassifier buildLearnedClassifier() {
-	m_manager.addConfidences(m_leftConf, m_rightConf, m_chosenThreshold);
+	if(m_isMonotonic) {
+	    m_manager.addConfidences(m_leftConf, m_rightConf, m_chosenThreshold);
+	}
 	return new SingleFeatureThresholdedClassifier(m_featColumn,
 						      m_thresholds[m_chosenThreshold],
 						      m_leftConf,

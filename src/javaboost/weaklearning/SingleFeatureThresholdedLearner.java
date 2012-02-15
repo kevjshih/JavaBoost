@@ -21,7 +21,7 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	double weightedPos_r = 0;
 	double weightedNeg_r = 0;
 
-	double regularizer = 1/data.length;
+	double regularizer = 1.0/data.length;
 
 	for(int i = 0; i < data.length; ++i) {
 	    if(data[i][m_featColumn] < m_threshold) {

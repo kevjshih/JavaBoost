@@ -33,7 +33,7 @@ public class ConditionalLearner implements WeakLearner{
        // everything else that fails the initial conditions
        double weightedOthers = 0;
 
-       double regularizer = 1/data.length;
+       double regularizer = 1.0/data.length;
 
        for(int i = 0; i < data.length; ++i) {
 	   if(Utils.isValid(data[i], m_cond, LogicOps.AND)) {

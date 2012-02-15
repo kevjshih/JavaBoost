@@ -32,7 +32,7 @@ public class LogicalLearner implements WeakLearner{
 	double weightedFalsePos = 0;
 	double weightedFalseNeg = 0;
 
-	double regularizer = 1/data.length;
+	double regularizer = 1.0/data.length;
 
 	for(int i = 0; i < data.length; ++i) {
 	    if(Utils.isValid(data[i], m_cond, m_logicOp)) {
