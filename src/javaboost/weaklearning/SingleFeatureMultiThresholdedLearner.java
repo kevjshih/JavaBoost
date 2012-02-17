@@ -17,7 +17,7 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	// construct bins based on the thresholds
 	private double[] confs = null;
 	public MonotonicityManager() {
-	    Arrays.sort(m_thresholds);
+
 	    confs = new double[m_thresholds.length +1];
 	    for(int i = 0; i < confs.length; ++i) {
 		confs[i] = 0;
@@ -51,9 +51,10 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
     }
 
 
-    public SingleFeatureMultiThresholdedLearner(int featColumn, float[] thresholds, boolean isMonotonic) {
+    public SingleFeatureMultiThresholdedLearner(final int featColumn, final float[] thresholds, final boolean isMonotonic) {
 	m_featColumn = featColumn;
 	m_thresholds = thresholds;
+	Arrays.sort(m_thresholds);
 	m_isMonotonic = isMonotonic;
 	if(isMonotonic) {
 	    m_manager = new MonotonicityManager();
@@ -63,7 +64,7 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
     public final double train(final float[][] data, final int labels[], final double[] weights) {
 	m_leftConf = 0;
 	m_rightConf = 0;
-	double regularizer = 1.0/data.length;
+     	double regularizer = 1.0/data.length;
 
 	// aggregate the data
 	double [][] dataLabelsSorted = new double[data.length][3];
@@ -74,13 +75,13 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	}
 	//sort it
 	Arrays.sort(dataLabelsSorted, new Comparator<double[]>(){
-		public int compare(final double[] row, final double[] row2){
-		    return Double.compare(row[0], row2[0]);
+		public int compare(final double[] row1, final double[] row2){
+		    return Double.compare(row1[0], row2[0]);
 		}
 	    });
 
 
-	int numBins = m_thresholds.length +1;
+	int numBins = m_thresholds.length+1;
 	double[] cumPosBins = new double[numBins];
 	double[] cumNegBins = new double[numBins];
 
@@ -88,7 +89,7 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 
 	for(int i = 0; i < dataLabelsSorted.length; ++i) {
 	    while(binIdx < m_thresholds.length &&
-		  dataLabelsSorted[i][0] > m_thresholds[binIdx]) {
+		  dataLabelsSorted[i][0] >= m_thresholds[binIdx]) {
 		++binIdx;
 	    }
 	    if(dataLabelsSorted[i][1] >= 0) {
@@ -110,8 +111,8 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 
 	double[] leftConfs = new double[m_thresholds.length];
 	double[] rightConfs = new double[m_thresholds.length];
-	double[] losses = new double[m_thresholds.length];
-
+	//double[] losses = new double[m_thresholds.length];
+	double loss = 0;
 	double bestLoss = 1000;
 	int bestThresh = -1;
 	for(int t = 0; t < m_thresholds.length; ++t) {
@@ -124,14 +125,14 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 		leftConfs[t] = adjusted[0];
 		rightConfs[t] = adjusted[1];
 	    }
-	    losses[t] = Math.exp(-leftConfs[t])*cumPosBins[t] +
+	    loss = Math.exp(-leftConfs[t])*cumPosBins[t] +
 		Math.exp(leftConfs[t])*cumNegBins[t] +
 		Math.exp(-rightConfs[t])*rightPos +
 		Math.exp(rightConfs[t])*rightNeg;
-	    losses[t] = losses[t]/(1+losses[t]);
-	    if(losses[t] < bestLoss) {
+	    loss = loss/(1+loss);
+	    if(loss < bestLoss) {
 		bestThresh = t;
-		bestLoss = losses[t];
+		bestLoss = loss;
 	    }
 	}
 	m_storedLoss = bestLoss;
