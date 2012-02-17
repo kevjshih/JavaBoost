@@ -3,8 +3,9 @@ package javaboost.boosting;
 import java.util.List;
 import javaboost.weaklearning.WeakClassifier;
 import javaboost.util.Utils;
+import java.io.Serializable;
 
-public class AdditiveClassifier{
+public class AdditiveClassifier implements Serializable{
     private List<WeakClassifier> m_classifiers = null;
 
     public AdditiveClassifier(List<WeakClassifier> classifiers) {
