@@ -48,6 +48,10 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	    }
 	}
 
+	public double[] getConfidenceFunction() {
+	    return confs;
+	}
+
     }
 
 
@@ -58,6 +62,14 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	m_isMonotonic = isMonotonic;
 	if(isMonotonic) {
 	    m_manager = new MonotonicityManager();
+	}
+    }
+
+    public double[] getConfidenceFunction() {
+	if(m_isMonotonic) {
+	    return m_manager.getConfidenceFunction();
+	}else{
+	    return null;
 	}
     }
 
