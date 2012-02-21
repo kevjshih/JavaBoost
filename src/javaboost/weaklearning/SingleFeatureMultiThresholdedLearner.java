@@ -96,10 +96,15 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	int numBins = m_thresholds.length+1;
 	double[] cumPosBins = new double[numBins];
 	double[] cumNegBins = new double[numBins];
+	double dcWeights = 0;
 
 	int binIdx = 0;
 
 	for(int i = 0; i < dataLabelsSorted.length; ++i) {
+	    if(Double.isInfinite(dataLabelsSorted[i][0])){
+		dcWeights += dataLabelsSorted[i][2];
+		continue;
+	    }
 	    while(binIdx < m_thresholds.length &&
 		  dataLabelsSorted[i][0] >= m_thresholds[binIdx]) {
 		++binIdx;
@@ -140,7 +145,7 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	    loss = Math.exp(-leftConfs[t])*cumPosBins[t] +
 		Math.exp(leftConfs[t])*cumNegBins[t] +
 		Math.exp(-rightConfs[t])*rightPos +
-		Math.exp(rightConfs[t])*rightNeg;
+		Math.exp(rightConfs[t])*rightNeg + dcWeights;
 	    loss = loss/(1+loss);
 	    if(loss < bestLoss) {
 		bestThresh = t;

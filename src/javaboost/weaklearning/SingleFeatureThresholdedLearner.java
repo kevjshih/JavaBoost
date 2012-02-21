@@ -20,10 +20,14 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	double weightedNeg_l = 0;
 	double weightedPos_r = 0;
 	double weightedNeg_r = 0;
-
+	double dcWeights = 0;
 	double regularizer = 1.0/data.length;
 
 	for(int i = 0; i < data.length; ++i) {
+	    if(Float.isInfinite(data[i][m_featColumn])) {
+		dcWeights+=weights[i];
+		continue;
+	    }
 	    if(data[i][m_featColumn] < m_threshold) {
 		if(labels[i] >= 0){
 		    weightedPos_l+=weights[i];
@@ -46,7 +50,7 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	m_storedLoss = Math.exp(-m_leftConf)*weightedPos_l +
 	    Math.exp(m_leftConf)*weightedNeg_l +
 	    Math.exp(-m_rightConf)*weightedPos_r +
-	    Math.exp(m_rightConf)*weightedNeg_r;
+	    Math.exp(m_rightConf)*weightedNeg_r+dcWeights;
 
 	m_storedLoss = m_storedLoss/(1+m_storedLoss);
 
