@@ -53,7 +53,7 @@ public class LogitBoost{
 	    // update weights
 	    confs = Utils.addVectors(bestClassifier.classify(data), confs);
 
-	    double[] labelDotConfs = Utils.dotMultiplyVectors(confs, labels);
+	    double[] labelDotConfs = Utils.ebeMultiplyVectors(confs, labels);
 
 	    for(int i = 0; i < labelDotConfs.length; ++i) {
 		weights[i] = 1/(1+Math.exp(labelDotConfs[i]));
@@ -137,7 +137,7 @@ public class LogitBoost{
 	    confs = Utils.addVectors(bestClassifier.classify(data), confs);
 
 
-	    double[] labelDotConfs = Utils.dotMultiplyVectors(confs, labels);
+	    double[] labelDotConfs = Utils.ebeMultiplyVectors(confs, labels);
 
 	    for(int i = 0; i < labelDotConfs.length; ++i) {
 		weights[i] = 1/(1+Math.exp(labelDotConfs[i]));
