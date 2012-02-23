@@ -10,6 +10,14 @@ public final class Utils{
 	throw new AssertionError();
     }
 
+    public static double[] scaleVector(final double[] a, final double factor) {
+	double[] out = new double[a.length];
+	for(int i = 0; i < a.length; ++i) {
+	    out[i] = a[i]*factor;
+	}
+	return out;
+    }
+
     public static float[] addVectors(final float[] a, final float[] b) {
 	assert(a.length == b.length);
 
