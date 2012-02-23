@@ -1,17 +1,17 @@
 package javaboost.regression;
-import org.apache.commons.math.linear.*;
+import javaboost.util.Utils;
 
 
 public final class ConjugateGradient{
 
     // Finds x such that A x = b using CG
-    public static RealVector solve(RealMatrix A, RealVector b, RealVector startx, int maxIters) {
+    public static double[] solve(double[][] A, double[] b, double[] startx, int maxIters) {
 	int i = 0;
 
-	RealVector x = startx;
-	RealVector r = b.subtract(A.operate(x)); // r = b - A * x
-	RealVector d = r.copy(); // d = r
-	double delta_new = r.dotProduct(r);
+	double[] x = startx;
+	double[] r = Utils.subtractVectors(b, Utils.operate(A,x)); // r = b - A * x
+	double[] d = r.clone(); // d = r
+	double delta_new = Utils.innerProductVectors(r,r);
 	double delta_0 = delta_new;
 
 	double epsilon = 0.00001;
@@ -19,14 +19,14 @@ public final class ConjugateGradient{
 
 
 	while(delta_new > epsilon && i > maxIters) {
-	    RealVector q = A.operate(d);
-	    double alpha = delta_new/(d.dotProduct(q));
-	    x = x.add(d.mapMultiply(alpha));
-	    r = r.subtract(q.mapMultiply(alpha));
+	    double[] q = Utils.operate(A,d);
+	    double alpha = delta_new/(Utils.innerProductVectors(d,q));
+	    x = Utils.addVectors(x, Utils.scaleVector(d,alpha));
+	    r = Utils.subtractVectors(r, Utils.scaleVector(q, alpha));
 	    double delta_old = delta_new;
-	    delta_new =  r.dotProduct(r);
+	    delta_new =  Utils.innerProductVectors(r,r);
 	    double Beta = delta_new/delta_old;
-	    d = r.add(d.mapMultiply(Beta));
+	    d = Utils.addVectors(r, Utils.scaleVector(d, Beta));
 	    ++i;
 	}
 	return x;

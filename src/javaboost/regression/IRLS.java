@@ -1,56 +1,61 @@
 package javaboost.regression;
-import org.apache.commons.math.linear.*;
-
+import javaboost.util.Utils;
 public final class IRLS{
 
 
-    public static RealVector solve(RealMatrix X, RealVector y, double lambda) {
-	double[] beta_init = new double[X.getColumnDimension()];
-	double[] ones_init = new double[X.getColumnDimension()];
-	for(int i = 0; i < beta_init.length; ++i) {
-	    beta_init[i] = 0;
-	    ones_init[i] = 1.0;
+    public static double[] solve(double[][] X, double[] y, double lambda) {
+	double[] _Beta = new double[X.length];
+	double[] ones = new double[X[0].length];
+	for(int i = 0; i < _Beta.length; ++i) {
+	    _Beta[i] = 0;
+	    ones[i] = 1.0;
 	}
 
-	RealVector Beta = new ArrayRealVector(beta_init);
-	RealVector ones = new ArrayRealVector(ones_init);
-
-	Array2DRowRealMatrix W = new Array2DRowRealMatrix(X.getColumnDimension(), X.getColumnDimension());
+	double[][] W = new double[X.length][X[0].length];
 
 	double change = 20.0;
 	double epsilon = 0.0001;
 
+
+	double[][] lambdaI = Utils.scaleMatrix(Utils.createIdentity(X[0].length), lambda);
+
 	while(change > epsilon) {
-	    RealVector XopB = X.operate(Beta);
-	    RealVector exponent = XopB.mapMultiply(-1);
 
-	    double[] expRef = exponent.toArray();
-	    for(int i = 0; i < expRef.length; ++i) {
-		expRef[i] = Math.exp(expRef[i]);
+
+	    double[] XopB = Utils.operate(X, _Beta);
+	    double[] negExp = Utils.scaleVector(XopB, -1);
+
+
+	    for(int i = 0; i < negExp.length; ++i) {
+		negExp[i] = Math.exp(negExp[i]);
 	    }
 
-	    RealVector u = ones.ebeDivide(ones.add(exponent));
+	    double[] u = Utils.ebeDivideVectors(ones, Utils.addVectors(ones,negExp));
 
-	    RealVector w = u.ebeMultiply(ones.subtract(u));
+	    double[] w = Utils.ebeMultiplyVectors(u, Utils.subtractVectors(ones, u));
 
-	    RealVector U = XopB.add(y.subtract(u).ebeDivide(w));
+	    double[] U = Utils.addVectors(XopB, Utils.ebeDivideVectors(Utils.subtractVectors(y,u),w));
 
-	    double[][] Welts = W.getDataRef();
-	    for(int i = 0; i < w.getDimension(); ++i) {
-		Welts[i][i]= w.getEntry(i);
+	    for(int i = 0; i < w.length; ++i) {
+		W[i][i]= w[i];
 	    }
 
-	    RealMatrix XttimesW = X.transpose().multiply(W);
+	    double[][] XttimesW = Utils.multiplyMatrices(Utils.transposeMatrix(X),W);
 
-	    RealMatrix A = XttimesW.multiply(X).add(MatrixUtils.createRealIdentityMatrix(X.getColumnDimension()).scalarMultiply(lambda));
-	    RealVector b = XttimesW.operate(U);
-	    RealVector Beta_new = ConjugateGradient.solve(A, b, Beta, 100);
-	    change = Beta_new.subtract(Beta).getL1Norm();
-	    Beta = Beta_new;
+	    double[][] A = Utils.multiplyMatrices(XttimesW, X);
+
+	    A = Utils.addMatrices(A, lambdaI);
+
+	    double[] b = Utils.operate(XttimesW,U);
+
+	    double[] _Beta_new = ConjugateGradient.solve(A, b, _Beta, 100);
+	    change = Utils.getL1Norm(Utils.subtractVectors(_Beta_new, _Beta));
+
+	    _Beta = _Beta_new;
 
 	}
 
-	return Beta;
+	return _Beta;
 
     }
 

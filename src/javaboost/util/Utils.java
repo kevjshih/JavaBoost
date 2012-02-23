@@ -18,6 +18,32 @@ public final class Utils{
 	return out;
     }
 
+
+    public static void scaleVectorInPlace(double[] a, final double factor) {
+	for(int i = 0; i < a.length; ++i) {
+	    a[i] = a[i]*factor;
+	}
+    }
+
+
+    public static double[][] scaleMatrix(final double[][] m, final double factor) {
+	double[][] out = new double[m.length][m[0].length];
+	for(int i = 0; i < m.length; ++i) {
+	    for(int j = 0; j < m[0].length; ++j) {
+		out[i][j] = m[i][j]*factor;
+	    }
+	}
+	return out;
+    }
+
+    public static void scaleMatrixInPlace(double[][] m, final double factor) {
+	for(int i = 0; i < m.length; ++i) {
+	    for(int j = 0; j < m[0].length; ++j) {
+		m[i][j]*= factor;
+	    }
+	}
+    }
+
     public static float[] addVectors(final float[] a, final float[] b) {
 	assert(a.length == b.length);
 
@@ -53,6 +79,32 @@ public final class Utils{
 	}
 
 	return output;
+    }
+
+    public static double[][] addMatrices(final double[][] a, final double[][] b) {
+	assert(a.length == b.length);
+	assert(a[0].length == b[0].length);
+	double[][] out = new double[a.length][a[0].length];
+	for(int i = 0; i < a.length; ++i) {
+	    for(int j = 0; j < a[0].length ; ++j) {
+		out[i][j] = a[i][j] + b[i][j];
+	    }
+	}
+	return out;
+
+    }
+
+    public static double[][] subtractMatrices(final double[][] a, final double[][]b) {
+	assert(a.length == b.length);
+	assert(a[0].length == b[0].length);
+	double[][] out = new double[a.length][a[0].length];
+	for(int i = 0; i < a.length; ++i) {
+	    for(int j = 0; j < a[0].length ; ++j) {
+		out[i][j] = a[i][j] - b[i][j];
+	    }
+	}
+	return out;
+
     }
 
 
@@ -108,7 +160,7 @@ public final class Utils{
 	return output;
     }
 
-    public static double innerproductVectors(final double[] a, final double[] b) {
+    public static double innerProductVectors(final double[] a, final double[] b) {
 	assert(a.length == b.length);
 	double[] prod = ebeMultiplyVectors(a,b);
 	return vectorSum(prod);
@@ -136,7 +188,7 @@ public final class Utils{
     }
 
     // m * x
-    public double[] operate(final double[][] m,final double[] x) {
+    public static double[] operate(final double[][] m,final double[] x) {
 
 	int rows = m.length;
 	int cols = m[0].length;
@@ -194,6 +246,13 @@ public final class Utils{
 	return norm;
     }
 
+    public static double getL2Norm(final double[] a) {
+	double norm = 0;
+	for(int i = 0; i < a.length; ++i) {
+	    norm += a[i]*a[i];
+	}
+	return Math.sqrt(norm);
+    }
 
     public static void normalizeVector(float[] a) {
 	float sum = 0;
