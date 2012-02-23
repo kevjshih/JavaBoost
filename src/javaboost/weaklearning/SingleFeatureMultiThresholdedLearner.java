@@ -73,6 +73,10 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	}
     }
 
+    public float[] getThresholds() {
+	return m_thresholds;
+    }
+
     public final double train(final float[][] data, final int labels[], final double[] weights) {
 	m_leftConf = 0;
 	m_rightConf = 0;
