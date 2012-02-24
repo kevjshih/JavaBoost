@@ -57,6 +57,17 @@ public final class Utils{
 
     }
 
+    public static void addVectorsInPlace(double[] a, final double[] b) {
+	assert(a.length == b.length);
+
+	for(int i = 0; i < a.length; ++i) {
+	    a[i] = a[i] + b[i];
+	}
+
+    }
+
+
+
     public static double[] addVectors(final double[] a, final double[] b) {
 	assert(a.length == b.length);
 
@@ -81,6 +92,18 @@ public final class Utils{
 	return output;
     }
 
+
+    public static void subtractVectorsInPlace(double[] a, final double[] b) {
+	assert(a.length == b.length);
+
+	for(int i = 0; i < a.length; ++i) {
+	    a[i] = a[i] - b[i];
+	}
+
+    }
+
+
+
     public static double[][] addMatrices(final double[][] a, final double[][] b) {
 	assert(a.length == b.length);
 	assert(a[0].length == b[0].length);
@@ -94,6 +117,17 @@ public final class Utils{
 
     }
 
+    public static void addMatricesInPlace(double[][] a, final double[][] b) {
+	assert(a.length == b.length);
+	assert(a[0].length == b[0].length);
+	for(int i = 0; i < a.length; ++i) {
+	    for(int j = 0; j < a[0].length ; ++j) {
+		a[i][j] = a[i][j] + b[i][j];
+	    }
+	}
+    }
+
+
     public static double[][] subtractMatrices(final double[][] a, final double[][]b) {
 	assert(a.length == b.length);
 	assert(a[0].length == b[0].length);
@@ -106,6 +140,19 @@ public final class Utils{
 	return out;
 
     }
+
+
+    public static void subtractMatricesInPlace(double[][] a, final double[][]b) {
+	assert(a.length == b.length);
+	assert(a[0].length == b[0].length);
+
+	for(int i = 0; i < a.length; ++i) {
+	    for(int j = 0; j < a[0].length ; ++j) {
+		a[i][j] = a[i][j] - b[i][j];
+	    }
+	}
+    }
+
 
 
     public static double[] ebeDivideVectors(final double[] a, final double[] b) {
@@ -194,13 +241,28 @@ public final class Utils{
 	int cols = m[0].length;
 	assert(cols == x.length);
 
-	double[] out = new double[x.length];
-	for(int i = 0; i < m.length; ++i) {
-	    for(int j = 0; j < m[i].length; ++j) {
+	double[] out = new double[rows];
+	for(int i = 0; i < rows; ++i) {
+	    for(int j = 0; j < cols; ++j) {
 		out[i]+= m[i][j]*x[j];
 	    }
 	}
 	return out;
+    }
+
+    public static void operateWithTarget(double[] target, final double[][] m, final double[] x){
+
+	int rows = m.length;
+	int cols = m[0].length;
+	assert(cols == x.length);
+
+	for(int i = 0; i < rows; ++i) {
+	    target[i] = 0;
+	    for(int j = 0; j < cols; ++j) {
+		target[i]+= m[i][j]*x[j];
+	    }
+	}
+
     }
 
 
@@ -221,6 +283,28 @@ public final class Utils{
 	}
 	return out;
     }
+
+
+    // matrix a times matrix b
+    public static void multiplyMatricesWithTarget(double[][] target, final double[][] a, final double [][]b) {
+	int rowsA = a.length;
+	int colsA = a[0].length;
+	int rowsB = b.length;
+	int colsB = b[0].length;
+	assert(colsA == rowsB);
+	assert(target.length == rowsA && target[0].length == colsB);
+
+	for(int i = 0; i < rowsA; ++i) {
+	    for(int j = 0; j < colsB; ++j) {
+		target[i][j] = 0;
+		for(int k = 0; k < colsA; ++k) {
+		    target[i][j]+=a[i][k]*b[k][j];
+		}
+	    }
+	}
+
+    }
+
 
     public static double[][] createIdentity(int size) {
 	double[][] out = new double[size][size];
