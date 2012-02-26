@@ -47,12 +47,10 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	m_rightConf = 0.5*Math.log((regularizer+weightedPos_r)/(regularizer+weightedNeg_r));
 
 	//return the weighted loss and cache it for parallel runs
-	m_storedLoss = Math.exp(-m_leftConf)*weightedPos_l +
-	    Math.exp(m_leftConf)*weightedNeg_l +
-	    Math.exp(-m_rightConf)*weightedPos_r +
-	    Math.exp(m_rightConf)*weightedNeg_r+dcWeights;
-
-	m_storedLoss = m_storedLoss/(1+m_storedLoss);
+	m_storedLoss = Math.log(1+Math.exp(-m_leftConf))*weightedPos_l +
+	    Math.log(1+Math.exp(m_leftConf))*weightedNeg_l +
+	    Math.log(1+Math.exp(-m_rightConf))*weightedPos_r +
+	    Math.log(1+Math.exp(m_rightConf))*weightedNeg_r+dcWeights;
 
 	return m_storedLoss;
     }
