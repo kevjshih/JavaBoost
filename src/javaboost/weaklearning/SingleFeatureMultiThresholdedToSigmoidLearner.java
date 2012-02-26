@@ -154,16 +154,22 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 	    double bias = leftConfs[t];
 	    loss = 0;
 	    for(int i = 0; i < dataLabelsSorted.length; ++i) {
-		if(Double.isInfinite(dataLabelsSorted[i][0])) {
+		double output = 0;
+		if(!Double.isInfinite(dataLabelsSorted[i][0])) {
+		    output = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
+		}
+
+		loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*output));
+		/*		if(Double.isInfinite(dataLabelsSorted[i][0])) {
 		    loss += dataLabelsSorted[i][2];
 		}else{
 		    loss += dataLabelsSorted[i][2]*Math.exp(-1*dataLabelsSorted[i][1]*
 				     (bias +
 				      alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])))));
-		}
+				      }*/
 	    }
 
-	    loss = loss/(1+loss);
+	    //	    loss = loss/(1+loss);
 	    if(loss < bestLoss) {
 		bestThresh = t;
 		bestLoss = loss;

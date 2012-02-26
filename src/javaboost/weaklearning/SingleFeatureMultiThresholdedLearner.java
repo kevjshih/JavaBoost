@@ -146,6 +146,23 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 		leftConfs[t] = adjusted[0];
 		rightConfs[t] = adjusted[1];
 	    }
+
+	    for(int i = 0; i < dataLabelsSorted.length; ++i) {
+		double output = 0;
+		if(!Double.isInfinite(dataLabelsSorted[i][0])) {
+		    if(dataLabelsSorted[i][1] >= m_thresholds[t]) {
+			output = rightConfs[t];
+		    }else{
+			output = leftConfs[t];
+		    }
+
+		}
+
+		loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*output));
+
+	    }
+
+
 	    loss = Math.exp(-leftConfs[t])*cumPosBins[t] +
 		Math.exp(leftConfs[t])*cumNegBins[t] +
 		Math.exp(-rightConfs[t])*rightPos +
