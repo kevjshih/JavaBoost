@@ -40,6 +40,8 @@ public class SingleFeatureSigmoidClassifier implements WeakClassifier{
 			  +m_featColumn
 			  +"@"
 			  +m_threshold
+			  +" SmoothingWT:"
+			  +m_smoothW
 			  +" less: "
 			  +m_leftConf
 			  +" greaterOrEqual: "

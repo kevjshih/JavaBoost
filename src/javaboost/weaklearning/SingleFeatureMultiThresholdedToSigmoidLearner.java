@@ -10,7 +10,7 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
     private double m_rightConf = 0;
     private double m_storedLoss = 0;
     private boolean m_isMonotonic = false;
-    private double m_smoothingW = 10;
+    private double m_smoothingW;
     private MonotonicityManager m_manager = null;
 
 
@@ -56,11 +56,15 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
     }
 
 
-    public SingleFeatureMultiThresholdedToSigmoidLearner(final int featColumn, final float[] thresholds, final boolean isMonotonic) {
+    public SingleFeatureMultiThresholdedToSigmoidLearner(final int featColumn,
+							 final float[] thresholds,
+							 final boolean isMonotonic,
+							 double smoothingParam) {
 	m_featColumn = featColumn;
 	m_thresholds = thresholds;
 	Arrays.sort(m_thresholds);
 	m_isMonotonic = isMonotonic;
+	m_smoothingW = smoothingParam;
 	if(isMonotonic) {
 	    m_manager = new MonotonicityManager();
 	}
