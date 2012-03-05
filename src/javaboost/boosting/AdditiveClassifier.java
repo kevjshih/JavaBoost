@@ -44,10 +44,10 @@ public class AdditiveClassifier implements Serializable{
 		}
 	    }
 	}
-	Integer[] nonPrim =  (Integer[])cols.toArray();
+	Object[] nonPrim =  cols.toArray();
 	int[] out = new int[nonPrim.length];
 	for(int i = 0; i < out.length; ++i) {
-	    out[i] = nonPrim[i];
+	    out[i] = ((Integer)nonPrim[i]).intValue();
 	}
 	return out;
     }
