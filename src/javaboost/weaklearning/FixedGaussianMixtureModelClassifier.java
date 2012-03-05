@@ -39,5 +39,8 @@ public final class FixedGaussianMixtureModelClassifier implements WeakClassifier
 	return description;
     }
 
+    public int[] getColumns() {
+	return null;
+    }
 
 }
