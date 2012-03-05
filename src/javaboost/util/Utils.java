@@ -207,6 +207,18 @@ public final class Utils{
 	return output;
     }
 
+    // assumes the last column is the bias
+    public static double evaluateWeightsOnData(final float[] data,
+					       final double[] weights,
+					       final int[] columns) {
+	double out = 0;
+	for(int i = 0; i < data.length; ++i) {
+	    out += data[columns[i]]*weights[i];
+	}
+	out+=weights[weights.length-1];
+	return out;
+    }
+
     public static double innerProductVectors(final double[] a, final double[] b) {
 	assert(a.length == b.length);
 	double[] prod = ebeMultiplyVectors(a,b);

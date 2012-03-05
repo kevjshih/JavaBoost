@@ -45,4 +45,12 @@ public class SingleFeatureThresholdedClassifier implements WeakClassifier{
 			  +m_rightConf);
     }
 
+
+    public int[] getColumns() {
+	int[] out = {m_featColumn};
+	return out;
+    }
+
+
+
 }

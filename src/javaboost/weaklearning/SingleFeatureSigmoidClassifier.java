@@ -18,7 +18,6 @@ public class SingleFeatureSigmoidClassifier implements WeakClassifier{
 	m_smoothW = smoothW;
     }
 
-
     public double[] classify(float[][] data){
 	double[] output = new double[data.length];
 	double alpha = m_rightConf - m_leftConf;
@@ -46,6 +45,11 @@ public class SingleFeatureSigmoidClassifier implements WeakClassifier{
 			  +m_leftConf
 			  +" greaterOrEqual: "
 			  +m_rightConf);
+    }
+
+    public int[] getColumns() {
+	int[] out = {m_featColumn};
+	return out;
     }
 
 }

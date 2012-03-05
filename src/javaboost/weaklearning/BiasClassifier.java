@@ -19,4 +19,8 @@ public class BiasClassifier implements WeakClassifier{
 	return new String("Bias: " + m_bias);
     }
 
+    public int[] getColumns() {
+	return null;
+    }
+
 }

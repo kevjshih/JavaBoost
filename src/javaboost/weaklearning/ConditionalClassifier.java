@@ -47,4 +47,7 @@ public class ConditionalClassifier implements WeakClassifier{
 	description = description.substring(0, description.length()-1);
 	return description;
     }
+    public int[] getColumns() {
+	return null;
+    }
 }

@@ -64,7 +64,7 @@ public final class IRLS{
 
     }
 
-    public static void setXtWX(double[][] target, final double[][] X, final  double[]W_diag) {
+    private static void setXtWX(double[][] target, final double[][] X, final  double[]W_diag) {
 	assert(target.length == X[0].length);
 	assert(target[0].length == target.length);
 
