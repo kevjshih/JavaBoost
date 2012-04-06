@@ -70,6 +70,115 @@ public class LogitBoost{
 	return new AdditiveClassifier(output);
     }
 
+    public static LayeredClassifier trainLayeredClassifier(final float[][] positives,
+							   final float[][] negatives,
+							   final int[][] labels,
+							   List<WeakLearner> learners,
+							   int maxIterations){
+
+	int num_bases = labels[0].length;
+
+	List<AdditiveClassifier> baseClassifiers = new ArrayList<AdditiveClassifier>();
+	for(int i = 0; i < num_bases; ++i) {
+	    int num_negs = 0;
+	    for(int j = 0; j < labels.length; ++j) {
+		if(labels[j][i] == -1) {
+		    ++num_negs;
+		}
+	    }
+	    int data_length = num_negs + positives.length;
+	    float[][] data = new float[data_length][positives[0].length];
+	    int[] data_labels = new int[data_length];
+
+	    // load the positives
+	    for(int j = 0; j < positives.length; ++j) {
+		for(int k = 0; k < positives[0].length; ++k) {
+		    data[j][k] = positives[j][k];
+		}
+		data_labels[j] = 1;
+	    }
+	    int data_j = positives.length;
+	    for(int j = 0; j < negatives.length; ++j) {
+		if(labels[j][i] == -1) {
+		    for(int k = 0; k < positives[0].length; ++k) {
+			data[data_j][k] = negatives[j][k];
+		    }
+		    ++data_j;
+		    data_labels[data_j] = -1;
+		}
+	    }
+
+	    double[] weights = Utils.getBalancedWeights(data_labels);
+
+	    AdditiveClassifier baseC = trainConcurrent(data, data_labels,
+						       learners,
+						       maxIterations, 8,
+						       weights);
+	    baseClassifiers.add(baseC);
+
+	}
+
+	// create the aggregate dataset
+	int num_data_all = positives.length+negatives.length;
+	float[][] data_all = new float[num_data_all][positives[0].length];
+	int[] labels_all = new int[num_data_all];
+	for(int i = 0; i < num_data_all; ++i) {
+	    if(i < positives.length) {
+		for(int j = 0; j < positives[0].length; ++j) {
+		    data_all[i][j] = positives[i][j];
+		}
+	        labels_all[i] = 1;
+	    }else{
+		labels_all[i] = -1;
+		for(int j = 0; j < positives[0].length; ++j) {
+		    data_all[i][j] = negatives[i-positives.length][j];
+		}
+	    }
+	}
+	float[][] data_final = new float[num_data_all][num_bases];
+	// find the new thresholds
+	int num_threshes = 100;
+	List<WeakLearner> learners2 = new ArrayList<WeakLearner>();
+
+
+	for(int c = 0; c < num_bases; ++c) {
+	    double[] output = baseClassifiers.get(c).classify(data_all);
+	    float smallestPos = 1000;
+	    float greatestNeg = -1000;
+	    for(int i = 0; i < num_data_all; ++i) {
+		data_final[i][c] = (float)output[i];
+		if(i < positives.length && output[i] < smallestPos) {
+		    smallestPos = (float)output[i];
+		}else if(i >= positives.length && output[i] > greatestNeg) {
+		    greatestNeg = (float)output[i];
+		}
+	    }
+	    float diff = Math.abs(smallestPos - greatestNeg);
+	    float lower = Math.min(smallestPos, greatestNeg);
+	    float upper = Math.max(smallestPos, greatestNeg);
+	    float stepSize = diff/num_threshes;
+	    float[] threshes = new float[num_threshes];
+	    for(int i = 0; i < num_threshes; ++i) {
+		threshes[i] = lower + stepSize*i;
+	    }
+	    double sw = 1/(3*Utils.std(output));
+	    learners2.add(new SingleFeatureMultiThresholdedToSigmoidLearner(c, threshes, true, sw));
+	}
+
+	double[] weights_final = Utils.getBalancedWeights(labels_all);
+
+
+
+	AdditiveClassifier finalClassifier = trainConcurrent(data_final,
+							     labels_all,
+							     learners2,
+							     maxIterations,
+							     8,
+							     weights_final);
+	return new LayeredClassifier(baseClassifiers, finalClassifier);
+
+    }
+
     public static AdditiveClassifier trainConcurrent(final float[][] data,
 					   final int[] labels,
 					   List<WeakLearner> learners,
@@ -154,5 +263,7 @@ public class LogitBoost{
 
 	return new AdditiveClassifier(output);
     }
+
+
 
 }

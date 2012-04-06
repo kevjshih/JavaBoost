@@ -10,6 +10,31 @@ public final class Utils{
 	throw new AssertionError();
     }
 
+
+    public static double[] getBalancedWeights(int[] labels) {
+	double[] weights = new double[labels.length];
+	int numPos = 0;
+	int numNeg = 0;
+	for(int i = 0; i < labels.length; ++i) {
+	    if(labels[i] == 1) {
+		++numPos;
+	    }else{
+		++numNeg;
+	    }
+	}
+	double posWt = 0.5/numPos;
+	double negWt = 0.5/numNeg;
+	for(int i = 0; i < labels.length; ++i) {
+	    if(labels[i] == 1) {
+		weights[i] = posWt;
+	    }else{
+		weights[i] = negWt;
+	    }
+	}
+	return weights;
+
+    }
+
     public static double[] scaleVector(final double[] a, final double factor) {
 	double[] out = new double[a.length];
 	for(int i = 0; i < a.length; ++i) {
@@ -377,6 +402,37 @@ public final class Utils{
 	    sum += a[i];
 	}
 	return sum/a.length;
+    }
+    public static float mean(float[] a) {
+	float sum = 0;
+	for(int i = 0; i < a.length; ++i) {
+	    sum += a[i];
+	}
+	return sum/a.length;
+    }
+
+    public static float std(float[] data) {
+	double datamean = (double)mean(data);
+	double out = 0;
+	for(int i = 0; i < data.length; ++i) {
+	    double diff = data[i] - datamean;
+	    out += diff*diff;
+	}
+	out/=data.length;
+	out = Math.sqrt(out);
+	return (float)out;
+    }
+
+    public static double std(double[] data) {
+	double datamean = mean(data);
+	double out = 0;
+	for(int i = 0; i < data.length; ++i) {
+	    double diff = data[i] - datamean;
+	    out += diff*diff;
+	}
+	out/=data.length;
+	out = Math.sqrt(out);
+	return out;
     }
 
     public static boolean isValid(float[] features, List<Conditional> conditions, byte logicOp) {
