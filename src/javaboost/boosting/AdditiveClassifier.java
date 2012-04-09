@@ -1,14 +1,17 @@
 package javaboost.boosting;
 
+
+
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 
+import javaboost.*;
 import javaboost.weaklearning.WeakClassifier;
 import javaboost.util.Utils;
 import java.io.Serializable;
 
-public class AdditiveClassifier implements Serializable{
+public class AdditiveClassifier implements Serializable, Classifier{
     private List<WeakClassifier> m_classifiers = null;
 
     public AdditiveClassifier(List<WeakClassifier> classifiers) {

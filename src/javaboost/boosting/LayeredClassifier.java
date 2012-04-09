@@ -3,7 +3,9 @@ package javaboost.boosting;
 import java.io.Serializable;
 import java.util.List;
 
-public class LayeredClassifier implements Serializable{
+import javaboost.*;
+
+public class LayeredClassifier implements Serializable, Classifier{
     private List<AdditiveClassifier> m_baseClassifiers = null;
     private AdditiveClassifier m_outputClassifier = null;
 
@@ -20,7 +22,6 @@ public class LayeredClassifier implements Serializable{
 		baseOutput[j][i] = (float)output[j];
 	    }
 	}
-
 	return m_outputClassifier.classify(baseOutput);
     }
 }
