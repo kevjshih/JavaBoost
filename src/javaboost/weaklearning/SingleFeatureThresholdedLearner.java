@@ -50,7 +50,8 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	m_storedLoss = Math.log(1+Math.exp(-m_leftConf))*weightedPos_l +
 	    Math.log(1+Math.exp(m_leftConf))*weightedNeg_l +
 	    Math.log(1+Math.exp(-m_rightConf))*weightedPos_r +
-	    Math.log(1+Math.exp(m_rightConf))*weightedNeg_r+dcWeights;
+	    Math.log(1+Math.exp(m_rightConf))*weightedNeg_r+
+	    Math.log(2)*dcWeights;
 
 	return m_storedLoss;
     }

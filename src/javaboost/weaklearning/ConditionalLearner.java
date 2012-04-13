@@ -58,13 +58,22 @@ public class ConditionalLearner implements WeakLearner{
        m_trueConf = 0.5*Math.log((regularizer+weightedTruePos)/(regularizer+weightedTrueNeg));
        m_falseConf = 0.5*Math.log((regularizer+weightedFalsePos)/(regularizer+weightedFalseNeg));
 
-       m_storedLoss = Math.exp(-m_trueConf)*weightedTruePos +
+
+
+       m_storedLoss = Math.log(1+Math.exp(-m_trueConf))*weightedTruePos +
+	   Math.log(1+Math.exp(m_trueConf))*weightedTrueNeg +
+	   Math.log(1+Math.exp(-m_falseConf))*weightedFalsePos +
+	   Math.log(1+Math.exp(m_falseConf))*weightedFalseNeg +
+	   Math.log(2)*weightedOthers;
+
+
+       /*       m_storedLoss = Math.exp(-m_trueConf)*weightedTruePos +
 	   Math.exp(m_trueConf)*weightedTrueNeg +
 	   Math.exp(-m_falseConf)*weightedFalsePos +
 	   Math.exp(m_falseConf)*weightedFalseNeg +
 	   weightedOthers;
 
-       m_storedLoss = m_storedLoss/(1+m_storedLoss);
+	   m_storedLoss = m_storedLoss/(1+m_storedLoss);*/
 
        return m_storedLoss;
    }
