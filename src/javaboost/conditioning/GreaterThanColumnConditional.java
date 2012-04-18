@@ -17,4 +17,8 @@ public final class GreaterThanColumnConditional implements Conditional{
 	return new String("[col:"+ m_column + ">col:" +m_column2+"]");
     }
 
+    public int[] getTargetColumns() {
+	int[] columns = {m_column, m_column2};
+	return columns;
+    }
 }

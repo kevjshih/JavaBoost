@@ -3,6 +3,9 @@ package javaboost.util;
 import javaboost.conditioning.Conditional;
 import javaboost.conditioning.LogicOps;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.SortedSet;
 
 public final class Utils{
     private Utils() {
@@ -271,6 +274,18 @@ public final class Utils{
 	return out;
     }
 
+    public static int[][] transposeMatrix(final int[][] m) {
+	int rows = m.length;
+	int cols = m[0].length;
+	int[][] out = new int[cols][rows];
+	for(int i = 0; i < rows; ++i) {
+	    for(int j = 0; j < cols; ++j) {
+		out[j][i] = m[i][j];
+	    }
+	}
+	return out;
+    }
+
     // m * x
     public static double[] operate(final double[][] m,final double[] x) {
 
@@ -466,6 +481,32 @@ public final class Utils{
 
 	}
 
+    }
+
+    public static int[] intSetUnion(final int[] a, final int[] b) {
+	if(a == null && b == null) {
+	    return null;
+	}
+	if(a == null) {
+	    return (int[])b.clone();
+	}
+	if(b == null) {
+	    return (int[])a.clone();
+	}
+	Set<Integer> elts = new TreeSet<Integer>();
+	for(int i = 0; i < a.length; ++i) {
+	    elts.add(a[i]);
+	}
+	for(int i = 0; i < b.length; ++i) {
+	    elts.add(b[i]);
+	}
+	int[] out = new int[elts.size()];
+	int idx = 0;
+	for(Integer inte : elts) {
+	    out[idx] = inte;
+	    ++idx;
+	}
+	return out;
     }
 
 }

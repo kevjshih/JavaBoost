@@ -195,5 +195,11 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 	return m_storedLoss;
     }
 
+    public int[] getTargetColumns() {
+	int[] out = {m_featColumn};
+	return out;
+    }
+
+
 }
 

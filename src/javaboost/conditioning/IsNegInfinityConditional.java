@@ -15,4 +15,9 @@ public final class IsNegInfinityConditional implements Conditional{
     public String toString() {
 	return new String("[col:"+m_featColumn + "==-Inf]");
     }
+
+    public int[] getTargetColumns() {
+	int[] columns = {m_featColumn};
+	return columns;
+    }
 }

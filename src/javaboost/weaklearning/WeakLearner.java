@@ -7,4 +7,6 @@ public interface WeakLearner{
     WeakClassifier buildLearnedClassifier();
 
     double getLearnedLoss();
+
+    int[] getTargetColumns();
 }

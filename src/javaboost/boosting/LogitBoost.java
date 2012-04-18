@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javaboost.*;
 import javaboost.weaklearning.*;
 import javaboost.util.*;
 
@@ -68,6 +69,21 @@ public class LogitBoost{
 
 	}
 	return new AdditiveClassifier(output);
+    }
+
+    public static List<Classifier> trainMultitaskClassifiers(final float[][] data,
+							     final int[][] labels,
+							     List<List<WeakLearner>> allLearners,
+							     int maxIterations) {
+	int num_tasks = labels[0].length;
+	List<double[]> all_weights = new ArrayList<double[]>();
+	int[][] transposedLabels = Utils.transposeMatrix(labels);
+	for(int i = 0; i < num_tasks; ++i) {
+	    all_weights.add(Utils.getBalancedWeights(transposedLabels[i]));
+
+	}
+
+	return null;
     }
 
     public static LayeredClassifier trainLayeredClassifier(final float[][] positives,

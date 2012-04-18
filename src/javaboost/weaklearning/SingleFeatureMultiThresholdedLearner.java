@@ -155,12 +155,6 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 		Math.log(1+Math.exp(rightConfs[t]))*rightNeg +
 		dcWeights*Math.log(2);
 
-
-	    /*	    loss = Math.exp(-leftConfs[t])*cumPosBins[t] +
-		Math.exp(leftConfs[t])*cumNegBins[t] +
-		Math.exp(-rightConfs[t])*rightPos +
-		Math.exp(rightConfs[t])*rightNeg + dcWeights;
-		loss = loss/(1+loss);*/
 	    if(loss < bestLoss) {
 		bestThresh = t;
 		bestLoss = loss;
@@ -188,4 +182,8 @@ public class SingleFeatureMultiThresholdedLearner implements WeakLearner{
 	return m_storedLoss;
     }
 
+    public int[] getTargetColumns() {
+	int[] out = {m_featColumn};
+	return out;
+    }
 }

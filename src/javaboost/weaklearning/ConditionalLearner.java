@@ -86,4 +86,17 @@ public class ConditionalLearner implements WeakLearner{
 	return m_storedLoss;
     }
 
+    public int[] getTargetColumns() {
+	int[] out = null;
+	for(Conditional cond : m_cond) {
+	    int[] cols = cond.getTargetColumns();
+	    out = Utils.intSetUnion(out, cols);
+	}
+	return out;
+    }
+
+
+
+
+
 }

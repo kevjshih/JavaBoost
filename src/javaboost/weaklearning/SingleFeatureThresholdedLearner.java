@@ -67,4 +67,9 @@ public class SingleFeatureThresholdedLearner implements WeakLearner{
 	return m_storedLoss;
     }
 
+    public int[] getTargetColumns() {
+	int[] out = {m_featColumn};
+	return out;
+    }
+
 }

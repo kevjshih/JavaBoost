@@ -17,4 +17,9 @@ public final class GreaterThanThresholdConditional implements Conditional{
     public String toString() {
 	return new String("[col:"+ m_column + ">" + m_minThresh+"]");
     }
+
+    public int[] getTargetColumns() {
+	int[] columns = {m_column};
+	return columns;
+    }
 }
