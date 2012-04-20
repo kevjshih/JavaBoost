@@ -75,15 +75,107 @@ public class LogitBoost{
 							     final int[][] labels,
 							     List<List<WeakLearner>> allLearners,
 							     int maxIterations) {
+	// our classifiers, one for each task
+	List<List<WeakClassifier>> outputs = new ArrayList<List<WeakClassifier>>();
 	int num_tasks = labels[0].length;
+	int num_features = data[0].length;
 	List<double[]> all_weights = new ArrayList<double[]>();
 	int[][] transposedLabels = Utils.transposeMatrix(labels);
 	for(int i = 0; i < num_tasks; ++i) {
 	    all_weights.add(Utils.getBalancedWeights(transposedLabels[i]));
+	    outputs.add(new ArrayList<WeakClassifier>());
+	}
+
+	double[][] bestLosses = new double[num_tasks][num_features];
+	double[] lossSums = new double[num_features];
+	int[][] bestLearnersIdx = new int[num_tasks][num_features];
+
+	double[][] confs = new double[num_tasks][num_features];
+
+	// find the lowest-sum-column in bestLosses, then apply corresponding weaklearner idx
+	for(int t = 0; t < maxIterations; ++t) {
+	    // initialize losses to something huge
+	    for(int i = 0; i < bestLosses.length; ++i) {
+		for(int j = 0; j < bestLosses[i].length;++j) {
+		    bestLosses[i][j] = 10000;
+		}
+	    }
+	    for(int j = 0; j < lossSums.length; ++j) {
+		lossSums[j] = 0;
+	    }
+	    // Parallelize this section later
+	    // for each task figure out the losses
+	    for(int i = 0; i < num_tasks; ++i) {
+		List<WeakLearner> learners_i = allLearners.get(i);
+		for(int j = 0; j < learners_i.size(); ++j) {
+		    learners_i.get(j).train(data, transposedLabels[i], all_weights.get(i));
+		}
+	    }
+
+	    // now tabulate
+	    for(int i = 0; i < num_tasks; ++i) {
+		List<WeakLearner> learners_i = allLearners.get(i);
+		for(int j = 0; j < learners_i.size(); ++j) {
+		    WeakLearner wl = learners_i.get(j);
+		    int[] rel_cols = wl.getTargetColumns();
+		    for(int c = 0; c < rel_cols.length; ++c) {
+			if(wl.getLearnedLoss() < bestLosses[i][rel_cols[c]]) {
+			    bestLosses[i][rel_cols[c]] = wl.getLearnedLoss();
+			    bestLearnersIdx[i][rel_cols[c]] = j;
+			}
+		    }
+		}
+	    }
+	    // now find the best
+	    for(int i = 0; i < num_tasks; ++i) {
+		for(int j = 0; j < lossSums.length; ++j) {
+		    lossSums[j]+=bestLosses[i][j];
+		}
+	    }
+	    double bestJointLoss = 10000.0;
+	    int bestColumn = -1;
+	    for(int j = 0; j < lossSums.length; ++j) {
+		if(lossSums[j] < bestJointLoss) {
+		    bestJointLoss = lossSums[j];
+		    bestColumn = j;
+		}
+	    }
+	    assert(bestColumn >= 0 && bestColumn <= num_features);
+	    System.out.println("Iteration : " + t
+			       + " column chosen : " + bestColumn);
+	    // update classifiers & weights for each task
+	    for(int i = 0; i < num_tasks; ++i) {
+		// add new classifier
+		int bestIdx_i  = bestLearnersIdx[i][bestColumn];
+		WeakClassifier bestClassifier_i = allLearners.get(i).get(bestIdx_i).buildLearnedClassifier();
+		outputs.get(i).add(bestClassifier_i);
+
+		// update weights
+		double[] confs_best = Utils.addVectors(bestClassifier_i.classify(data), confs[i]);
+		double[] labelDotConfs = Utils.ebeMultiplyVectors(confs_best, transposedLabels[i]);
+		double[] weights_i = all_weights.get(i);
+		for(int j = 0; j < num_features; ++j) {
+		    confs[i][j] = confs_best[j];
+		    weights_i[j] = 1/(1+Math.exp(labelDotConfs[i]));
+		}
+
+		Utils.normalizeVector(weights_i);
+		System.out.println("\t Task: " + i + " weighted loss: " + bestLosses[i][bestColumn]);
+
+	    }
+
+
+
+
 
 	}
 
-	return null;
+	List<Classifier> allClassifiers = new ArrayList<Classifier>();
+	for(int i = 0; i < num_tasks; ++i) {
+	    allClassifiers.add(new AdditiveClassifier(outputs.get(i)));
+	}
+
+	return allClassifiers;
     }
 
     public static LayeredClassifier trainLayeredClassifier(final float[][] positives,
