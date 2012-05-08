@@ -3,6 +3,8 @@ package javaboost.boosting;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Arrays;
+
 
 import javaboost.*;
 import javaboost.weaklearning.*;
@@ -57,7 +59,12 @@ public class LogitBoost{
 	    double[] labelDotConfs = Utils.ebeMultiplyVectors(confs, labels);
 
 	    for(int i = 0; i < labelDotConfs.length; ++i) {
-		weights[i] = 1/(1+Math.exp(labelDotConfs[i]));
+		if(labels[i] != 0) {
+		    weights[i] = 1/(1+Math.exp(labelDotConfs[i]));
+		}
+		else {
+		    weights[i] = 0;
+		}
 	    }
 
 	    System.out.println("Iteration: " + t
@@ -74,13 +81,20 @@ public class LogitBoost{
     public static List<Classifier> trainMultitaskClassifiers(final float[][] data,
 							     final int[][] labels,
 							     List<List<WeakLearner>> allLearners,
-							     int maxIterations) {
+							     int maxIterations, int numThreads) {
 	// our classifiers, one for each task
 	List<List<WeakClassifier>> outputs = new ArrayList<List<WeakClassifier>>();
+
+	ExecutorService threadpool = ThreadPool.getThreadpoolInstance(numThreads);
+	final Collection<Callable<Object>> con_tasks
+	    = new ArrayList<Callable<Object>>(allLearners.get(0).size());
+
+
 	int num_tasks = labels[0].length;
 	int num_features = data[0].length;
+	int num_examples = data.length;
 	List<double[]> all_weights = new ArrayList<double[]>();
-	int[][] transposedLabels = Utils.transposeMatrix(labels);
+	final int[][] transposedLabels = Utils.transposeMatrix(labels);
 	for(int i = 0; i < num_tasks; ++i) {
 	    all_weights.add(Utils.getBalancedWeights(transposedLabels[i]));
 	    outputs.add(new ArrayList<WeakClassifier>());
@@ -90,14 +104,16 @@ public class LogitBoost{
 	double[] lossSums = new double[num_features];
 	int[][] bestLearnersIdx = new int[num_tasks][num_features];
 
-	double[][] confs = new double[num_tasks][num_features];
+	double[][] confs = new double[num_tasks][num_examples];
+
+	int hugeVal = 10000;
 
 	// find the lowest-sum-column in bestLosses, then apply corresponding weaklearner idx
 	for(int t = 0; t < maxIterations; ++t) {
 	    // initialize losses to something huge
 	    for(int i = 0; i < bestLosses.length; ++i) {
 		for(int j = 0; j < bestLosses[i].length;++j) {
-		    bestLosses[i][j] = 10000;
+		    bestLosses[i][j] = hugeVal;
 		}
 	    }
 	    for(int j = 0; j < lossSums.length; ++j) {
@@ -107,9 +123,28 @@ public class LogitBoost{
 	    // for each task figure out the losses
 	    for(int i = 0; i < num_tasks; ++i) {
 		List<WeakLearner> learners_i = allLearners.get(i);
-		for(int j = 0; j < learners_i.size(); ++j) {
+		/*	for(int j = 0; j < learners_i.size(); ++j) {
 		    learners_i.get(j).train(data, transposedLabels[i], all_weights.get(i));
+		    }*/
+		final double[] weightsCpy = all_weights.get(i);
+		con_tasks.clear();
+		final int i_f = i;
+		for(final WeakLearner wl: learners_i) {
+		    con_tasks.add(Executors.callable(new Runnable() {
+			    public void run() {
+				try{
+				    wl.train(data, transposedLabels[i_f], weightsCpy);
+				}catch(Exception ex) {
+				    ex.printStackTrace();
+			    }
+			    }
+			}));
 		}
+		try{
+		    threadpool.invokeAll(con_tasks);
+		}catch(Exception ex) {}
+
+
 	    }
 
 	    // now tabulate
@@ -126,10 +161,13 @@ public class LogitBoost{
 		    }
 		}
 	    }
+
 	    // now find the best
 	    for(int i = 0; i < num_tasks; ++i) {
 		for(int j = 0; j < lossSums.length; ++j) {
-		    lossSums[j]+=bestLosses[i][j];
+		    if(bestLosses[i][j] < hugeVal) {
+			lossSums[j]+=bestLosses[i][j];
+		    }
 		}
 	    }
 	    double bestJointLoss = 10000.0;
@@ -154,19 +192,20 @@ public class LogitBoost{
 		double[] confs_best = Utils.addVectors(bestClassifier_i.classify(data), confs[i]);
 		double[] labelDotConfs = Utils.ebeMultiplyVectors(confs_best, transposedLabels[i]);
 		double[] weights_i = all_weights.get(i);
-		for(int j = 0; j < num_features; ++j) {
-		    confs[i][j] = confs_best[j];
-		    weights_i[j] = 1/(1+Math.exp(labelDotConfs[i]));
+		for(int j = 0; j < num_examples; ++j) {
+		    if(transposedLabels[i][j] != 0) {
+			confs[i][j] = confs_best[j];
+			weights_i[j] = 1/(1+Math.exp(labelDotConfs[j]));
+		    }else{
+			weights_i[j] = 0;
+		    }
 		}
 
 		Utils.normalizeVector(weights_i);
-		System.out.println("\t Task: " + i + " weighted loss: " + bestLosses[i][bestColumn]);
+		System.out.println("\t Task: " + i + " weighted loss: " + bestLosses[i][bestColumn]
+				   + " mean weights: " + Utils.mean(weights_i));
 
 	    }
-
-
-
-
 
 	}
 
@@ -352,8 +391,14 @@ public class LogitBoost{
 
 	    double[] labelDotConfs = Utils.ebeMultiplyVectors(confs, labels);
 
+
 	    for(int i = 0; i < labelDotConfs.length; ++i) {
-		weights[i] = 1/(1+Math.exp(labelDotConfs[i]));
+		if(labels[i] != 0) {
+		    weights[i] = 1/(1+Math.exp(labelDotConfs[i]));
+		}
+		else {
+		    weights[i] = 0;
+		}
 	    }
 
 	    System.out.println("Iteration: " + t

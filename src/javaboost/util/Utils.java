@@ -14,14 +14,14 @@ public final class Utils{
     }
 
 
-    public static double[] getBalancedWeights(int[] labels) {
+    public static double[] getBalancedWeights(final int[] labels) {
 	double[] weights = new double[labels.length];
 	int numPos = 0;
 	int numNeg = 0;
 	for(int i = 0; i < labels.length; ++i) {
 	    if(labels[i] == 1) {
 		++numPos;
-	    }else{
+	    }else if(labels[i] == -1){
 		++numNeg;
 	    }
 	}
@@ -30,8 +30,10 @@ public final class Utils{
 	for(int i = 0; i < labels.length; ++i) {
 	    if(labels[i] == 1) {
 		weights[i] = posWt;
-	    }else{
+	    }else if(labels[i] == -1){
 		weights[i] = negWt;
+	    }else {
+		weights[i] = 0;
 	    }
 	}
 	return weights;
