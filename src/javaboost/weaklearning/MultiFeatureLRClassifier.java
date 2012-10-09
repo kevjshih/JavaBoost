@@ -26,12 +26,17 @@ public class MultiFeatureLRClassifier implements WeakClassifier {
 	    }
 	    if(skip) {
 		output[i] = 0;
-		continue;
 	    } else {
+		double rawOut = 0;
 		for(int j = 0; j < m_featColumns.length; ++j) {
-		    output[i] += m_lrSolution[j] * data[i][m_featColumns[j]];
+		    rawOut += m_lrSolution[j] * data[i][m_featColumns[j]];
 		}
-		output[i] += m_lrSolution[m_lrSolution.length]; // add bias
+		rawOut += m_lrSolution[m_lrSolution.length-1]; // add bias
+		if(rawOut >= 0) {
+		    output[i] = m_posConf;
+		}else {
+		    output[i] = m_negConf;
+		}
 	    }
 	}
 

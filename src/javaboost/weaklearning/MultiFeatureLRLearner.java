@@ -16,7 +16,7 @@ public class MultiFeatureLRLearner implements WeakLearner {
     private double m_posConf = 0;
     private double m_storedLoss = 0;
     private double[]  m_lrSolution = null;
-
+    private int m_numToDrop = 0;
 
     public MultiFeatureLRLearner(final int[] featColumns) {
 	m_featColumns = featColumns;
@@ -24,13 +24,15 @@ public class MultiFeatureLRLearner implements WeakLearner {
 
     private char[] findMissingDataRows(final float[][] data) {
 	char[] badRows = new char[data.length];
-	int numCols = data[0].length;
+	int numCols = m_featColumns.length;
+	m_numToDrop = 0;
 	for(int i = 0; i < data.length; ++i) {
 	    badRows[i] = 0;
 	    for(int j = 0; j < numCols; ++j) {
 		// count number of examples with -inf where we care
 		if(Float.isInfinite(data[i][m_featColumns[j]])) {
 		    badRows[i] = 1;
+		    m_numToDrop++;
 		    break;
 		}
 	    }
@@ -40,7 +42,7 @@ public class MultiFeatureLRLearner implements WeakLearner {
 
 
     private double[] pruneExampleWeights(final double[] weights, char[] badRows) {
-	double[] prunedWeights = new double[weights.length - badRows.length];
+	double[] prunedWeights = new double[weights.length - m_numToDrop];
 	int cnt = 0;
 	for(int i = 0; i < weights.length; ++i) {
 	    if(badRows[i] == 1)
@@ -53,7 +55,7 @@ public class MultiFeatureLRLearner implements WeakLearner {
     }
 
     private double[] pruneExampleLabels(final int[] labels, char[] badRows) {
-        double[] prunedLabels = new double[labels.length - badRows.length];
+        double[] prunedLabels = new double[labels.length - m_numToDrop];
 	int cnt = 0;
 	for(int i = 0; i < labels.length; ++i) {
 	    if(badRows[i] == 1)
@@ -68,7 +70,8 @@ public class MultiFeatureLRLearner implements WeakLearner {
     // removes bad rows and adds bias
     private double[][] pruneExampleFeatures(final float[][] data, char[] badRows) {
 	int numCols = m_featColumns.length;
-	int numToDrop = badRows.length;
+	int numToDrop = m_numToDrop;
+
 
 	int numRows = data.length - numToDrop;
 	double[][] prunedData =  new double[numRows][numCols+1];
