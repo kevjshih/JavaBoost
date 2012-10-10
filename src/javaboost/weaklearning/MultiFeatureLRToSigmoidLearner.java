@@ -110,7 +110,7 @@ public class MultiFeatureLRToSigmoidLearner implements WeakLearner{
 	// sort the data by output
 	// aggregate the data
 	double [][] dataLabelsSorted = new double[prunedData.length][3];
-	for(int i = 0; i < data.length; ++i) {
+	for(int i = 0; i < prunedData.length; ++i) {
 	    dataLabelsSorted[i][0] = output[i];
 	    dataLabelsSorted[i][1] = prunedLabels[i];
 	    dataLabelsSorted[i][2] = prunedWeights[i];
