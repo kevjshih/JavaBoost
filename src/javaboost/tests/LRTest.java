@@ -10,7 +10,7 @@ public class LRTest {
 	ArrayList<WeakLearner> wl = new ArrayList<WeakLearner>();
 	for(int i = 0; i < 10; ++i) {
 	    int[] arr = {i*2, i*2+1};
-	    wl.add(new MultiFeatureLRLearner(arr));
+	    wl.add(new MultiFeatureLRToSigmoidLearner(arr, 1.5));
 	    //wl.add(new SingleFeatureThresholdedLearner(i, (float)0.5));
 	}
 	LogitBoost.train(data.m_data, data.m_labels, wl, 900, null);

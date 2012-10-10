@@ -6,9 +6,10 @@ import javaboost.util.Utils;
 import javaboost.regression.*;
 
 public class MultiFeatureLRLearner implements WeakLearner {
-    /* This classifier learns a logistic regressor and separates at S(x) = 0.a5.
-     Missing data( -inf) causes the entire example to be ignored in training and a 0
-     is returned in test.
+    /*
+       This classifier learns a logistic regressor and separates at S(x) = 0.a5.
+       Missing data( -inf) causes the entire example to be ignored in training and a 0
+       is returned in test.
     */
     private int[] m_featColumns = null;
 
