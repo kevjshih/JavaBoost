@@ -26,6 +26,7 @@ public class MultiFeatureLRToSigmoidLearner implements WeakLearner{
     }
 
     private char[] findMissingDataRows(final float[][] data) {
+
 	char[] badRows = new char[data.length];
 	int numCols = m_featColumns.length;
 	m_numToDrop = 0;
@@ -95,6 +96,7 @@ public class MultiFeatureLRToSigmoidLearner implements WeakLearner{
     }
 
     public final double train(final float[][] data, final int labels[], final double[] weights) {
+	m_storedLoss = 0;
 	char[] badRows =  findMissingDataRows(data);
 	double[][] prunedData = pruneExampleFeatures(data, badRows);
 	double[] prunedWeights = pruneExampleWeights(weights, badRows);
@@ -104,8 +106,9 @@ public class MultiFeatureLRToSigmoidLearner implements WeakLearner{
 	double[] output = Utils.operate(prunedData, m_lrSolution);
 	// force output to be between 0 and 1
 	for(int i = 0; i < output.length; ++i) {
-	    output[i] = 1/(Math.exp(-output[i]) + 1.0);
+	    output[i] = 1.0/(Math.exp(-output[i]) + 1.0);
 	}
+
 
 	// sort the data by output
 	// aggregate the data
@@ -131,11 +134,19 @@ public class MultiFeatureLRToSigmoidLearner implements WeakLearner{
 	double dcWeights = 0;
 	int binIdx = 0;
 
+
+	for(int i = 0; i < badRows.length; ++i) {
+	    if(badRows[i] == 1) {
+		dcWeights+=weights[i]*Math.log(2);
+	    }
+	}
+
+
 	for(int i = 0; i < dataLabelsSorted.length; ++i) {
-	    if(Double.isInfinite(dataLabelsSorted[i][0])){
+	    /*if(Double.isInfinite(dataLabelsSorted[i][0])){
 		dcWeights += dataLabelsSorted[i][2];
 		continue;
-	    }
+		}*/
 	    while(binIdx < m_thresholds.length &&
 		  dataLabelsSorted[i][0] >= m_thresholds[binIdx]) {
 		++binIdx;
@@ -174,9 +185,9 @@ public class MultiFeatureLRToSigmoidLearner implements WeakLearner{
 	    loss = 0;
 	    for(int i = 0; i < dataLabelsSorted.length; ++i) {
 		double out = 0;
-		if(!Double.isInfinite(dataLabelsSorted[i][0])) {
-		    out = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
-		}
+
+		out = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
+
 
 		loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*out));
 
@@ -188,6 +199,7 @@ public class MultiFeatureLRToSigmoidLearner implements WeakLearner{
 	    }
 	}
 	m_storedLoss = bestLoss;
+	m_storedLoss += dcWeights;
 	m_chosenThreshold = bestThresh;
 	m_leftConf = leftConfs[bestThresh];
 	m_rightConf = rightConfs[bestThresh];

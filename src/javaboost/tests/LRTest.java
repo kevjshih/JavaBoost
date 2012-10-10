@@ -10,10 +10,10 @@ public class LRTest {
 	ArrayList<WeakLearner> wl = new ArrayList<WeakLearner>();
 	for(int i = 0; i < 10; ++i) {
 	    int[] arr = {i*2, i*2+1};
-	    wl.add(new MultiFeatureLRToSigmoidLearner(arr, 1.5));
+	    wl.add(new MultiFeatureLRToSigmoidLearner(arr, 1.2));
 	    //wl.add(new SingleFeatureThresholdedLearner(i, (float)0.5));
 	}
-	LogitBoost.train(data.m_data, data.m_labels, wl, 900, null);
+	LogitBoost.train(data.m_data, data.m_labels, wl, 100, null);
     }
 
     private static Dataset gen(int rows, int cols) {
@@ -23,7 +23,11 @@ public class LRTest {
 	int negs = rows - pos;
 	for(int i = 0; i < pos; ++i) {
 	    for(int j = 0; j < cols; ++j) {
-		data[i][j] = (float)(Math.random() + 0.2);
+		if(Math.random() >0.75)
+		    data[i][j] = Float.NEGATIVE_INFINITY;
+		else {
+		    data[i][j] = (float)(Math.random() + 0.5);
+		}
 	    }
 	    labels[i] = 1;
 	}
