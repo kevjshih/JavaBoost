@@ -2,6 +2,8 @@ package javaboost.weaklearning;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import javaboost.util.Utils;
+
 public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearner{
     private int m_featColumn = -1;
     private float[] m_thresholds = null;
@@ -160,10 +162,13 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 	    for(int i = 0; i < dataLabelsSorted.length; ++i) {
 		double output = 0;
 		if(!Double.isInfinite(dataLabelsSorted[i][0])) {
+
 		    output = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
+		    //output = bias +alpha/(1+Utils.fastExp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
 		}
 
 		loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*output));
+		//loss += dataLabelsSorted[i][2]*Math.log(1+Utils.fastExp(-dataLabelsSorted[i][1]*output));
 
 	    }
 
@@ -202,4 +207,3 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 
 
 }
-

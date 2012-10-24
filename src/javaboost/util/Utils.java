@@ -13,11 +13,17 @@ public final class Utils{
 	throw new AssertionError();
     }
 
+    public static double fastExp(double val) {
+	final long tmp = (long) (1512775 * val + 1072632447);
+	return Double.longBitsToDouble(tmp << 32);
+    }
+
 
     public static double[] getBalancedWeights(final int[] labels) {
 	double[] weights = new double[labels.length];
 	int numPos = 0;
 	int numNeg = 0;
+
 	for(int i = 0; i < labels.length; ++i) {
 	    if(labels[i] == 1) {
 		++numPos;
