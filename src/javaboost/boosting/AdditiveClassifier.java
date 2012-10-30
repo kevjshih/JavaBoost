@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javaboost.*;
-import javaboost.weaklearning.WeakClassifier;
+import javaboost.weaklearning.*;
 import javaboost.util.Utils;
 import java.io.Serializable;
 
@@ -29,6 +29,30 @@ public class AdditiveClassifier implements Serializable, Classifier{
 	}
 
 	return output;
+    }
+
+    public double[][] getContributions(float[][] data) {
+	int[] max_cols = this.getColumnsUsed();
+	int max_col = 0;
+	for(int i = 0; i < max_cols.length; ++i) {
+	    if(max_cols[i] > max_col) {
+		max_col = max_cols[i];
+	    }
+	}
+	System.out.println(max_col);
+	double[][] contributions = new double[data.length][max_col+1];
+	int num_classifiers = m_classifiers.size();
+	for(int i = 0; i < num_classifiers; ++i) {
+	    WeakClassifier wc = m_classifiers.get(i);
+	    if(wc instanceof SingleFeatureSigmoidClassifier) {
+		double[] output = wc.classify(data);
+		for(int j = 0; j < output.length; ++j) {
+		    contributions[j][wc.getColumns()[0]] = output[j] - ((SingleFeatureSigmoidClassifier)wc).getLB();
+		}
+	    }
+	}
+
+	return contributions;
     }
 
     public void listClassifiers() {

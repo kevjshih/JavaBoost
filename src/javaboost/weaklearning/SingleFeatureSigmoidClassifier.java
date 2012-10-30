@@ -46,6 +46,14 @@ public class SingleFeatureSigmoidClassifier implements WeakClassifier{
 			  +" greaterOrEqual: "
 			  +m_rightConf);
     }
+    public double getLB() {
+	return Math.min(m_leftConf, m_rightConf);
+    }
+
+    public double getUB() {
+	return Math.max(m_leftConf, m_rightConf);
+    }
+
 
     public int[] getColumns() {
 	int[] out = {m_featColumn};
