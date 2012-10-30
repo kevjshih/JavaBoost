@@ -39,7 +39,7 @@ public class AdditiveClassifier implements Serializable, Classifier{
 		max_col = max_cols[i];
 	    }
 	}
-	System.out.println(max_col);
+	//	System.out.println(max_col);
 	double[][] contributions = new double[data.length][max_col+1];
 	int num_classifiers = m_classifiers.size();
 	for(int i = 0; i < num_classifiers; ++i) {
@@ -47,7 +47,7 @@ public class AdditiveClassifier implements Serializable, Classifier{
 	    if(wc instanceof SingleFeatureSigmoidClassifier) {
 		double[] output = wc.classify(data);
 		for(int j = 0; j < output.length; ++j) {
-		    contributions[j][wc.getColumns()[0]] = output[j] - ((SingleFeatureSigmoidClassifier)wc).getLB();
+		    contributions[j][wc.getColumns()[0]] += Math.max(0,output[j] - ((SingleFeatureSigmoidClassifier)wc).getLB());
 		}
 	    }
 	}
