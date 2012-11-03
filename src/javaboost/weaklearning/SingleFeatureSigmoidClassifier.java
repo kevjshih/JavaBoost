@@ -1,6 +1,9 @@
 package javaboost.weaklearning;
 
 public class SingleFeatureSigmoidClassifier implements WeakClassifier{
+
+    static final long serialVersionUID = -4227240934866508505L;
+
     private int m_featColumn;
     private float m_threshold;
     private double m_leftConf = 0;

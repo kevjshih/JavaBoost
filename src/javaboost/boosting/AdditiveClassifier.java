@@ -12,6 +12,9 @@ import javaboost.util.Utils;
 import java.io.Serializable;
 
 public class AdditiveClassifier implements Serializable, Classifier{
+
+    static final long serialVersionUID = 7633954747288464591L;
+
     private List<WeakClassifier> m_classifiers = null;
 
     public AdditiveClassifier(List<WeakClassifier> classifiers) {

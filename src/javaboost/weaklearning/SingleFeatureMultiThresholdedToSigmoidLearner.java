@@ -164,12 +164,12 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 		if(!Double.isInfinite(dataLabelsSorted[i][0])) {
 
 		    output = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
-		    //output = bias +alpha/(1+Utils.fastExp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
+		    output = bias +alpha/(1+Utils.fastExp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
 		}
 
 		loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*output));
 		//loss += dataLabelsSorted[i][2]*Math.log(1+Utils.fastExp(-dataLabelsSorted[i][1]*output));
-
+		//loss += dataLabelsSorted[i][2]*(1+Math.exp(-dataLabelsSorted[i][1]*output));
 	    }
 
 	    if(loss < bestLoss) {
@@ -177,6 +177,41 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 		bestLoss = loss;
 	    }
 	}
+
+	int t = bestThresh;
+	double rightPos = posSum - cumPosBins[t];
+	double rightNeg = negSum - cumNegBins[t];
+	leftConfs[t] = 0.5*Math.log((regularizer+cumPosBins[t])/(regularizer+cumNegBins[t]));
+	rightConfs[t] = 0.5*Math.log((regularizer+rightPos)/(regularizer+rightNeg));
+	if(m_isMonotonic) {
+	    double[] adjusted = m_manager.adjustConfidences(leftConfs[t], rightConfs[t], t);
+	    leftConfs[t] = adjusted[0];
+	    rightConfs[t] = adjusted[1];
+	}
+
+
+	// compute the sigmoid
+	double alpha = rightConfs[t] - leftConfs[t];
+	double bias = leftConfs[t];
+	loss = 0;
+	for(int i = 0; i < dataLabelsSorted.length; ++i) {
+	    double output = 0;
+	    if(!Double.isInfinite(dataLabelsSorted[i][0])) {
+
+		output = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
+
+	    }
+
+	    loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*output));
+
+
+	}
+
+
+	bestThresh = t;
+	bestLoss = loss;
+
+
 	m_storedLoss = bestLoss;
 	m_chosenThreshold = bestThresh;
 	m_leftConf = leftConfs[bestThresh];
