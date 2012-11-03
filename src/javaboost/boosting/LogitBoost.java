@@ -217,7 +217,7 @@ public class LogitBoost{
 	return allClassifiers;
     }
 
-    public static LayeredClassifier trainLayeredClassifier(final float[][] positives,
+    /* public static LayeredClassifier trainLayeredClassifier(final float[][] positives,
 							   final float[][] negatives,
 							   final int[][] labels,
 							   List<List<WeakLearner> > allBaseLearners,
@@ -320,7 +320,7 @@ public class LogitBoost{
 							     8,
 							     weights_final);
 	return new LayeredClassifier(baseClassifiers, finalClassifier);
-    }
+	} */
 
     public static AdditiveClassifier trainConcurrent(final float[][] data,
 					   final int[] labels,

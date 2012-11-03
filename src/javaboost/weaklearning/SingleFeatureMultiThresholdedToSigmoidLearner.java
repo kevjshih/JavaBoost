@@ -16,6 +16,13 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
     private MonotonicityManager m_manager = null;
 
 
+    private boolean m_cacheSigmoid;
+    private boolean m_isReady = false;
+    private float[][] m_outputs = null;
+
+
+
+
     private class MonotonicityManager{
 	// construct bins based on the thresholds
 	private double[] confs = null;
@@ -61,7 +68,8 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
     public SingleFeatureMultiThresholdedToSigmoidLearner(final int featColumn,
 							 final float[] thresholds,
 							 final boolean isMonotonic,
-							 double smoothingParam) {
+							 double smoothingParam,
+							 boolean cacheSigmoid) {
 	m_featColumn = featColumn;
 	m_thresholds = thresholds;
 	Arrays.sort(m_thresholds);
@@ -70,7 +78,11 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 	if(isMonotonic) {
 	    m_manager = new MonotonicityManager();
 	}
+	m_cacheSigmoid = cacheSigmoid;
+
     }
+
+
 
     public double[] getConfidenceFunction() {
 	if(m_isMonotonic) {
@@ -85,6 +97,11 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
     }
 
     public final double train(final float[][] data, final int labels[], final double[] weights) {
+
+	if(m_cacheSigmoid && !m_isReady) {
+	    m_outputs = new float[m_thresholds.length][data.length];
+	}
+
 	m_leftConf = 0;
 	m_rightConf = 0;
      	double regularizer = 1.0/data.length;
@@ -131,8 +148,8 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 	// and the cummulative sums
 
 	for(int i = 1; i < numBins; ++i) {
-		cumPosBins[i] += cumPosBins[i-1];
-		cumNegBins[i] += cumNegBins[i-1];
+	    cumPosBins[i] += cumPosBins[i-1];
+	    cumNegBins[i] += cumNegBins[i-1];
 	}
 	double posSum = cumPosBins[numBins-1];
 	double negSum = cumNegBins[numBins-1];
@@ -160,17 +177,28 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 	    double bias = leftConfs[t];
 	    loss = 0;
 	    for(int i = 0; i < dataLabelsSorted.length; ++i) {
+
 		double output = 0;
 		if(!Double.isInfinite(dataLabelsSorted[i][0])) {
+		    double cacheVal = 0;
+		    if(m_cacheSigmoid && m_isReady) {
+			cacheVal = (double)m_outputs[t][i];
+		    }else {
+			cacheVal = (1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
+			if(m_cacheSigmoid)
+			    m_outputs[t][i] = (float)cacheVal;
+		    }
 
-		    output = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
+		    output = bias +alpha/cacheVal;
 
 		}
 
 		loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*output));
-		//loss += dataLabelsSorted[i][2]*Math.log(1+Utils.fastExp(-dataLabelsSorted[i][1]*output));
-		//loss += dataLabelsSorted[i][2]*(1+Math.exp(-dataLabelsSorted[i][1]*output));
+
 	    }
+	    //loss += dataLabelsSorted[i][2]*Math.log(1+Utils.fastExp(-dataLabelsSorted[i][1]*output));
+	    //loss += dataLabelsSorted[i][2]*(1+Math.exp(-dataLabelsSorted[i][1]*output));
+
 
 	    if(loss < bestLoss) {
 		bestThresh = t;
@@ -178,38 +206,10 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 	    }
 	}
 
-	int t = bestThresh;
-	double rightPos = posSum - cumPosBins[t];
-	double rightNeg = negSum - cumNegBins[t];
-	leftConfs[t] = 0.5*Math.log((regularizer+cumPosBins[t])/(regularizer+cumNegBins[t]));
-	rightConfs[t] = 0.5*Math.log((regularizer+rightPos)/(regularizer+rightNeg));
-	if(m_isMonotonic) {
-	    double[] adjusted = m_manager.adjustConfidences(leftConfs[t], rightConfs[t], t);
-	    leftConfs[t] = adjusted[0];
-	    rightConfs[t] = adjusted[1];
+	if (m_cacheSigmoid && !m_isReady) {
+	    m_isReady = true;
 	}
 
-
-	// compute the sigmoid
-	double alpha = rightConfs[t] - leftConfs[t];
-	double bias = leftConfs[t];
-	loss = 0;
-	for(int i = 0; i < dataLabelsSorted.length; ++i) {
-	    double output = 0;
-	    if(!Double.isInfinite(dataLabelsSorted[i][0])) {
-
-		output = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
-
-	    }
-
-	    loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*output));
-
-
-	}
-
-
-	bestThresh = t;
-	bestLoss = loss;
 
 
 	m_storedLoss = bestLoss;
