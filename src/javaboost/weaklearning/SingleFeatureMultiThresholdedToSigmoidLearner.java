@@ -164,7 +164,7 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 		if(!Double.isInfinite(dataLabelsSorted[i][0])) {
 
 		    output = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
-		    output = bias +alpha/(1+Utils.fastExp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
+
 		}
 
 		loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*output));
