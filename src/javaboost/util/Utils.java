@@ -93,6 +93,15 @@ public final class Utils{
 
     }
 
+    public static void addVectorsInPlace(float[] a, final float[] b) {
+	assert(a.length == b.length);
+
+	for(int i = 0; i < a.length; ++i) {
+	    a[i] = a[i] + b[i];
+	}
+
+    }
+
     public static void addVectorsInPlace(double[] a, final double[] b) {
 	assert(a.length == b.length);
 
@@ -264,6 +273,14 @@ public final class Utils{
 
     public static double vectorSum(final double[] a) {
 	double out = 0;
+	for(int i = 0; i < a.length; ++i) {
+	    out+= a[i];
+	}
+	return out;
+    }
+
+    public static float vectorSum(final float[] a) {
+	float out = 0;
 	for(int i = 0; i < a.length; ++i) {
 	    out+= a[i];
 	}

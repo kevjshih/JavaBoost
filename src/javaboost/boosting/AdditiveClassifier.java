@@ -21,7 +21,7 @@ public class AdditiveClassifier implements Serializable, Classifier{
 	m_classifiers = classifiers;
     }
 
-    public double[] classify(float[][] data) {
+    public double[] classify(final float[][] data) {
 	double[] output = new double[data.length];
 	for(int i = 0; i < data.length; ++i) {
 	    output[i] = 0;
