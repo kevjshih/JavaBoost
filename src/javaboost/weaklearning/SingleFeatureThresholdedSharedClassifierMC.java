@@ -5,7 +5,7 @@ import javaboost.*;
 import java.util.Set;
 import java.util.Map;
 
-public SingleFeatureThresholdedSharedClassifierMC extends WeakClassifierMC{
+public class SingleFeatureThresholdedSharedClassifierMC implements WeakClassifierMC{
     private float m_a_s;
     private float m_b_s;
     private float m_threshold;
@@ -25,10 +25,10 @@ public SingleFeatureThresholdedSharedClassifierMC extends WeakClassifierMC{
     public float[] classify(final float[][] data, int classId) {
 	float[] out = new float[data.length];
 	for(int i = 0; i < data.length; ++i) {
-	    if(m_biasMap.contains(classId)) {
+	    if(m_biasMap.get(classId) != null) {
 		out[i] = m_biasMap.get(classId);
 	    } else {
-		if(data[i][featColumn] >= m_threshold) {
+		if(data[i][m_featColumn] >= m_threshold) {
 		    out[i] = m_a_s;
 		} else {
 		    out[i] = m_b_s;

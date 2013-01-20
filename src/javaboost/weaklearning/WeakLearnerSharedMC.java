@@ -7,10 +7,11 @@ import java.util.Map;
 import java.util.HashMap;
 
 import javaboost.util.Utils;
+import javaboost.*;
 
 public class WeakLearnerSharedMC implements WeakLearnerMC{
-    private float[] m_thresholds;
-    final private Set<Integer> m_classes = null;
+    private float[] m_thresholds = null;
+    private Set<Integer> m_classes = null;
 
     private float m_a_s = -1;
     private float m_b_s = -1;
@@ -18,20 +19,19 @@ public class WeakLearnerSharedMC implements WeakLearnerMC{
 
     private float m_storedLoss = -1;
     private int m_featColumn = -1;
+
+    private Map<Integer, Float> m_biasMap = null;
     public WeakLearnerSharedMC(final int featColumn, final float[] thresholds, final Set<Integer> classes) {
 	m_featColumn = featColumn;
 	m_thresholds = thresholds;
-	m_classes = classes;
+	m_classes = new HashSet<Integer>(classes);
     }
 
     public final float train(final float[][] data,
 			     final int[][] labels, final float[][] weights, Set<Integer> pset, Set<Integer> nset) {
 
 
-
-
-     	float regularizer = 1.0/data.length;
-	int numClasses = labels.length;
+	int numClasses = m_classes.size();
 
 	// first column is data, second is the original position
 	float [][] dataIdxSorted = new float[data.length][2];
@@ -47,12 +47,12 @@ public class WeakLearnerSharedMC implements WeakLearnerMC{
 	    });
 	// results should be in ascending order
 
-	reorderedWeights = new float[weights.length][weights[0].length];
-	reorderedWLproducts = new float[weights.length][weights[0].length];
+	float[][] reorderedWeights = new float[weights.length][weights[0].length];
+	float[][] reorderedWLproducts = new float[weights.length][weights[0].length];
 	for(int c = 0; c < weights.length; ++c) {
 	    for(int i = 0; i < dataIdxSorted.length; ++i) {
-		reorderedWeights[c][i] = weights[c][dataIdxSorted[i][1]];
-		reorderedWLproducts[c][i] = reorderedWeights[c][i]*labels[c][dataIdxSorted[i][1]];
+		reorderedWeights[c][i] = weights[c][(int)dataIdxSorted[i][1]];
+		reorderedWLproducts[c][i] = reorderedWeights[c][i]*labels[c][(int)dataIdxSorted[i][1]];
 	    }
 	}
 	int numBins = m_thresholds.length+1;
@@ -73,7 +73,7 @@ public class WeakLearnerSharedMC implements WeakLearnerMC{
 			++binIdx;
 		    }
 
-		    if(labels[c][dataIdxSorted[i][1]] >= 0) {
+		    if(labels[c][(int)dataIdxSorted[i][1]] >= 0) {
 			cumPosBins[binIdx] += reorderedWLproducts[c][i];
 		    }else{
 			cumNegBins[binIdx] += reorderedWLproducts[c][i];
@@ -101,7 +101,7 @@ public class WeakLearnerSharedMC implements WeakLearnerMC{
 	    float k_c_denom = Utils.vectorSum(weights[c]);
 	    biasMap.put(c, new Float(k_c_num/k_c_denom));
 	}
-
+	m_biasMap = biasMap;
 	// go through thresholds to pick out one that minimizes loss for this feature
 	float bestLoss = Float.MAX_VALUE;
 	int bestThresh = -1;
@@ -112,16 +112,16 @@ public class WeakLearnerSharedMC implements WeakLearnerMC{
 	    float pos_val_a = posSum - cumPosBins[t];
 	    float neg_val_a = negSum - cumNegBins[t];
 	    float denom_a = denomSum - cumDenomBins[t];
-	    a_s = (pos_val_a - neg_val_a) / denom_a;
+	    float a_s = (pos_val_a - neg_val_a) / denom_a;
 
 	    float pos_val_b = cumPosBins[t];
 	    float neg_val_b =cumNegBins[t];
 	    float denom_b = cumDenomBins[t];
-	    b_s = (pos_val_b - neg_val_b) / denom_b;
+	    float b_s = (pos_val_b - neg_val_b) / denom_b;
 
 	    float loss = 0;
 	    WeakClassifierMC currHyp = new SingleFeatureThresholdedSharedClassifierMC(m_featColumn,  m_thresholds[t], a_s, b_s, m_classes, biasMap);
-	    loss = computeSquaredLossMC(data, m_featColumn, weights, labels, currHyp);
+	    loss = computeSquaredLossMC(data, weights, labels, currHyp);
 	    if(loss < bestLoss) {
 		bestLoss = loss;
 		besta_s = a_s;
@@ -140,23 +140,24 @@ public class WeakLearnerSharedMC implements WeakLearnerMC{
 
 
     public WeakClassifierMC buildLearnedClassifier() {
-	return new SingleFeatureThresholdedSharedClassifierMC(m_featColumn, m_thresholds[m_thresholdIdx],
+	WeakClassifierMC out = new SingleFeatureThresholdedSharedClassifierMC(m_featColumn, m_thresholds[m_thresholdIdx],
 							      m_a_s, m_b_s, m_classes, m_biasMap);
+	return out;
     }
 
     public static float computeSquaredLossMC(final float[][] data,
-					     final float[] thresholds, final float[][] weights,
+					     final float[][] weights,
 					     final int[][] labels, WeakClassifierMC hyp) {
 	float loss = 0;
 	int numClasses = labels.length;
 	for(int c = 0; c < numClasses; ++c) {
-	    scores = hyp.classify(data, c);
+	    float[] scores = hyp.classify(data, c);
 	    for(int i = 0; i < scores.length; ++i) {
-		float diff = labels[c][i] -  scores[i];
+		float diff = (float)labels[c][i] -  scores[i];
 		loss += weights[c][i]*diff*diff;
 	    }
 	}
-
+	return loss;
     }
 
     public float getLearnedLoss() {
