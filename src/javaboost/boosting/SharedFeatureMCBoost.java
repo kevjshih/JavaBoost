@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
 
 
 import javaboost.*;
@@ -24,11 +26,11 @@ public class SharedFeatureMCBoost {
 					     List<WeakLearnerMC> allLearners,
 					     int maxIterations) {
 	float[][] weights = initalizeWeights(labels);
-	numClasses = classes.size();
+	int numClasses = classes.size();
 	List<WeakClassifierMC> classifiers = new ArrayList<WeakClassifierMC>();
 	for(int t = 0; t < maxIterations; ++t) {
-	    Set<Integer>[] psets = new Set<Integer>[numClasses];
-	    Set<Integer>[] nsets = new Set<Integer>[numClasses];
+	    List<Set<Integer>> psets = new ArrayList<Set<Integer>>();
+	    List<Set<Integer>> nsets = new ArrayList<Set<Integer>>();
 	    float bestLossSubsetLoop = Float.MAX_VALUE;
 	    int bestSubsetIdx = -1;
 	    for(int c = 0; c < numClasses; ++c) {
@@ -36,12 +38,12 @@ public class SharedFeatureMCBoost {
 		Set<Integer> currNset;
 		Set<Integer> currNsetFixed;
 		if(c > 0) {
-		    currPset = new Set<Integer>(psets[c-1]);
-		    currNsetFixed = new Set<Integer>(nsets[c-1]);
+		    currPset = new HashSet<Integer>(psets.get(c-1));
+		    currNsetFixed = new HashSet<Integer>(nsets.get(c-1));
 
 		} else {
 		    currPset = new HashSet<Integer>();
-		    currNsetFixed = new Set<Integer>(classes);
+		    currNsetFixed = new HashSet<Integer>(classes);
 		}
 		float bestLossClassLoop  = Float.MAX_VALUE;
 		Integer nextClassCandidate = null;
@@ -63,10 +65,10 @@ public class SharedFeatureMCBoost {
 		    }
 		} // end of class loop
 		// update greedy set
-		nsets[c] = new HashSet<Integer>(nsets[c-1]);
-		nsets[c].remove(nextClassCandidate);
-		psets[c] = new HashSet<Integer>(psets[c-1]);
-		psets[c].add(nextClassCandidate);
+		nsets.add(new HashSet<Integer>(nsets.get(c-1)));
+		nsets.get(c).remove(nextClassCandidate);
+		psets.add( new HashSet<Integer>(psets.get(c-1)));
+		psets.get(c).add(nextClassCandidate);
 		if(bestLossClassLoop < bestLossSubsetLoop) {
 		    bestLossSubsetLoop = bestLossClassLoop;
 		    bestSubsetIdx = c;
@@ -77,22 +79,32 @@ public class SharedFeatureMCBoost {
 	    float bestLoss = Float.MAX_VALUE;
 	    WeakLearnerMC bestWl = null;
 	    for(WeakLearnerMC wl: allLearners) {
-		float currLoss = wl.train(data, labels, weights, currPset, currNset);
+		float currLoss = wl.train(data, labels, weights, psets.get(bestSubsetIdx), nsets.get(bestSubsetIdx));
 		if(currLoss < bestLoss) {
 		    bestLoss = currLoss;
 		    bestWl = wl;
 		}
 	    }
-	    classifiers.add(wl.buildLearnedClassifier());
+	    classifiers.add(bestWl.buildLearnedClassifier());
 	} // end of iter loop
 	return new AdditiveClassifierMC(classifiers, classes);
     } // end of function
 
+    public static float[][] initalizeWeights(int[][] labels) {
+	float[][] out = new float[labels.length][labels[0].length];
+	for(int i =0; i < out.length; ++i) {
+	    for(int j = 0; j < out[i].length; ++j) {
+		out[i][j] = 1.0f;
+	    }
+	}
+	return out;
+    }
+
     private static int[] combineSubsetLabels(final int[][] labels,
 					     Set<Integer> pset,
 					     Set<Integer> nset) {
-	numClasses = labels.length;
-	numEx = labels[0].length;
+	int numClasses = labels.length;
+	int numEx = labels[0].length;
 	int[] subLabels = new int[numEx];
 	for(int i = 0; i < numClasses; ++i) {
 	    boolean inPset = pset.contains(i);

@@ -112,12 +112,12 @@ public class WeakLearnerSharedMC implements WeakLearnerMC{
 	    float pos_val_a = posSum - cumPosBins[t];
 	    float neg_val_a = negSum - cumNegBins[t];
 	    float denom_a = denomSum - cumDenomBins[t];
-	    float a_s = (pos_val_a - neg_val_a) / denom_a;
+	    float a_s = (pos_val_a + neg_val_a) / denom_a;
 
 	    float pos_val_b = cumPosBins[t];
 	    float neg_val_b =cumNegBins[t];
 	    float denom_b = cumDenomBins[t];
-	    float b_s = (pos_val_b - neg_val_b) / denom_b;
+	    float b_s = (pos_val_b + neg_val_b) / denom_b;
 
 	    float loss = 0;
 	    WeakClassifierMC currHyp = new SingleFeatureThresholdedSharedClassifierMC(m_featColumn,  m_thresholds[t], a_s, b_s, m_classes, biasMap);
@@ -128,6 +128,7 @@ public class WeakLearnerSharedMC implements WeakLearnerMC{
 		bestb_s = b_s;
 		bestThresh = t;
 	    }
+	    System.out.println(loss);
 	}
 	m_a_s = besta_s;
 	m_b_s = bestb_s;

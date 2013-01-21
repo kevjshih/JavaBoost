@@ -26,7 +26,7 @@ public class AdditiveClassifierMC implements Serializable, ClassifierMC{
 	float[] output = new float[data.length];
 
 	for(WeakClassifierMC wc : m_classifiers) {
-	    output = Utils.addVectorsInPlace(output, wc.classify(data, classId));
+	    Utils.addVectorsInPlace(output, wc.classify(data, classId));
 	}
 	return output;
     }
