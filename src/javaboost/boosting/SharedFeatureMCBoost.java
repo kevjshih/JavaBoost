@@ -29,8 +29,10 @@ public class SharedFeatureMCBoost {
 	int numClasses = classes.size();
 	List<WeakClassifierMC> classifiers = new ArrayList<WeakClassifierMC>();
 	for(int t = 0; t < maxIterations; ++t) {
+	    System.out.println("Iteration: " + t);
 	    List<Set<Integer>> psets = new ArrayList<Set<Integer>>();
 	    List<Set<Integer>> nsets = new ArrayList<Set<Integer>>();
+	    // start with everything in negative set, slowly add classes into pset
 	    float bestLossSubsetLoop = Float.MAX_VALUE;
 	    int bestSubsetIdx = -1;
 	    for(int c = 0; c < numClasses; ++c) {
@@ -65,9 +67,15 @@ public class SharedFeatureMCBoost {
 		    }
 		} // end of class loop
 		// update greedy set
-		nsets.add(new HashSet<Integer>(nsets.get(c-1)));
+		if(c > 0) {
+		    nsets.add(new HashSet<Integer>(nsets.get(c-1)));
+		    psets.add( new HashSet<Integer>(psets.get(c-1)));
+		} else {
+		    nsets.add(new HashSet<Integer>(classes));
+		    psets.add(new HashSet<Integer>());
+		}
 		nsets.get(c).remove(nextClassCandidate);
-		psets.add( new HashSet<Integer>(psets.get(c-1)));
+
 		psets.get(c).add(nextClassCandidate);
 		if(bestLossClassLoop < bestLossSubsetLoop) {
 		    bestLossSubsetLoop = bestLossClassLoop;
@@ -75,7 +83,11 @@ public class SharedFeatureMCBoost {
 		}
 	    } // end of subset loop
 	    // we should know the best subset here
-	    // retrain because too lazy to cache...
+	    // retrain because too lazy to cache..
+	    for(Integer classId : psets.get(bestSubsetIdx)) {
+		System.out.print(classId + " ");
+	    }
+	    System.out.println();
 	    float bestLoss = Float.MAX_VALUE;
 	    WeakLearnerMC bestWl = null;
 	    for(WeakLearnerMC wl: allLearners) {
@@ -85,10 +97,23 @@ public class SharedFeatureMCBoost {
 		    bestWl = wl;
 		}
 	    }
-	    classifiers.add(bestWl.buildLearnedClassifier());
+	    WeakClassifierMC bestClassifier = bestWl.buildLearnedClassifier();
+	    classifiers.add(bestClassifier);
+	    // update weights by reference
+	    updateWeights(data, weights, labels, bestClassifier, classes);
 	} // end of iter loop
 	return new AdditiveClassifierMC(classifiers, classes);
     } // end of function
+
+    public static void updateWeights(final float[][] data, float[][] weights, final int[][] labels,
+				     WeakClassifierMC bestClassifier, Set<Integer> classes) {
+	for(Integer c : classes) {
+	    float[] outputs = bestClassifier.classify(data, c);
+	    for(int i = 0; i < data.length; ++i) {
+		weights[c][i] = weights[c][i]*((float)Math.exp(-1*labels[c][i]*outputs[i]));
+	    }
+	}
+    }
 
     public static float[][] initalizeWeights(int[][] labels) {
 	float[][] out = new float[labels.length][labels[0].length];

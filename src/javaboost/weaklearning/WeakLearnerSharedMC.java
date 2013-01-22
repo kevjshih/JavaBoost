@@ -128,7 +128,6 @@ public class WeakLearnerSharedMC implements WeakLearnerMC{
 		bestb_s = b_s;
 		bestThresh = t;
 	    }
-	    System.out.println(loss);
 	}
 	m_a_s = besta_s;
 	m_b_s = bestb_s;
