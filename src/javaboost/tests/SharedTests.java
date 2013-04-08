@@ -12,7 +12,7 @@ import javaboost.boosting.*;
 public class SharedTests {
     public static void main(String[] args) {
 	int numcols = 10;
-	int numClasses = 20;
+	int numClasses = 3;
 	Set<Integer> classes = new HashSet<Integer>();
 	for(int i = 0; i < numClasses; ++i) {
 	    classes.add(i);
@@ -62,7 +62,17 @@ public class SharedTests {
 	    System.out.println();
 	}
 
-	AdditiveClassifierMC result = SharedFeatureMCBoost.train(data.m_data, data.m_labels, classes, wl, 20);
+	AdditiveClassifierMC result = SharedFeatureMCBoost.train(data.m_data, data.m_labels, classes, wl, 100);
+	float[] output = result.classify(data.m_data, 1);
+	int correct = 0;
+	for(int i = 0; i < output.length; ++i) {
+	    System.out.println(output[i] + " " + data.m_labels[1][i]);
+
+
+
+
+	}
+	System.out.println(correct);
 
     }
 
@@ -72,6 +82,11 @@ public class SharedTests {
 	int[][] labels = new int[numClasses][rows];
 	int pos = rows/2;
 	int negs = rows - pos;
+	for(int i = 0; i < labels.length; ++i) {
+	    for(int j =0; j < labels[i].length; ++j) {
+		labels[i][j] = -1;
+	    }
+	}
 	for(int i = 0; i < pos; ++i) {
 	    for(int j = 0; j < cols; ++j) {
 		if(rand.nextDouble() >0.9)
@@ -83,21 +98,14 @@ public class SharedTests {
 	    for(int k = 0; k < numClasses; ++k) {
 		if(rand.nextDouble() > 0.2) {
 		    labels[k][i] = 1;
-		} else {
-		    labels[k][i] = -1;
 		}
+
+
 	    }
 	}
 	for(int i = pos; i < rows; ++i) {
 	    for(int j = 0; j < cols; ++j) {
 		data[i][j] = rand.nextFloat();
-	    }
-	    for(int k = 0; k < numClasses; ++k) {
-		if(rand.nextDouble() > 0.2) {
-		    labels[k][i] = -1;
-		} else {
-		    labels[k][i] = 1;
-		}
 	    }
 	}
 	return new Dataset(data, labels);

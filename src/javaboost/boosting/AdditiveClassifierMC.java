@@ -31,10 +31,11 @@ public class AdditiveClassifierMC implements Serializable, ClassifierMC{
 	return output;
     }
 
-    public int[] classifyArgMax(final float[][] data, int classId) {
+    public int[] classifyArgMax(final float[][] data) {
 	int[] labels = new int[data.length];
 
 	Integer[] classesArr = m_classes.toArray(new Integer[0]);
+
 
 	for(int i = 0; i < labels.length; ++i) {
 	    labels[i] = classesArr[0];
@@ -43,7 +44,7 @@ public class AdditiveClassifierMC implements Serializable, ClassifierMC{
 	float[] bestOutput = this.classify(data, classesArr[0]);
 
 
-	for(int i = 1; i < labels.length; ++i) {
+	for(int i = 1; i < classesArr.length; ++i) {
 	    float[] currOutput = this.classify(data, classesArr[i]);
 	    for(int j = 0; j < currOutput.length; ++j) {
 		if(currOutput[j] > bestOutput[j]) {

@@ -11,6 +11,7 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
     private double m_leftConf = 0;
     private double m_rightConf = 0;
     private double m_storedLoss = 0;
+    private double m_dcBias = 0;
     private boolean m_isMonotonic = false;
     private double m_smoothingW;
     private MonotonicityManager m_manager = null;
@@ -87,6 +88,7 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
     public final double train(final float[][] data, final int labels[], final double[] weights) {
 	m_leftConf = 0;
 	m_rightConf = 0;
+	m_dcBias = 0;
      	double regularizer = 1.0/data.length;
 
 	// aggregate the data
@@ -107,13 +109,18 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 	int numBins = m_thresholds.length+1;
 	double[] cumPosBins = new double[numBins];
 	double[] cumNegBins = new double[numBins];
-	double dcWeights = 0;
+	double dcPosWeights = 0;
+	double dcNegWeights = 0;
 
 	int binIdx = 0;
 
 	for(int i = 0; i < dataLabelsSorted.length; ++i) {
 	    if(Double.isInfinite(dataLabelsSorted[i][0])){
-		dcWeights += dataLabelsSorted[i][2];
+		if(dataLabelsSorted[i][1] >= 0) {
+		    dcPosWeights+= dataLabelsSorted[i][2];
+		}else{
+		    dcNegWeights+= dataLabelsSorted[i][2];
+		}
 		continue;
 	    }
 	    while(binIdx < m_thresholds.length &&
@@ -126,7 +133,8 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 		cumNegBins[binIdx]+= dataLabelsSorted[i][2];
 	    }
 	}
-
+	m_dcBias = 0.5*Math.log((regularizer+ dcPosWeights)/(regularizer+ dcNegWeights));
+	//m_dcBias = 0;
 	// compute sum total positive and negative weights
 	// and the cummulative sums
 
@@ -165,6 +173,8 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 
 		    output = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
 
+		}else {
+		    output = m_dcBias;
 		}
 
 		loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*output));
@@ -200,6 +210,8 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 
 		output = bias +alpha/(1+Math.exp(-m_smoothingW*(dataLabelsSorted[i][0]-m_thresholds[t])));
 
+	    } else{
+		output = m_dcBias;
 	    }
 
 	    loss += dataLabelsSorted[i][2]*Math.log(1+Math.exp(-dataLabelsSorted[i][1]*output));
@@ -228,7 +240,8 @@ public class SingleFeatureMultiThresholdedToSigmoidLearner implements WeakLearne
 						  m_thresholds[m_chosenThreshold],
 						  m_smoothingW,
 						  m_leftConf,
-						  m_rightConf);
+						  m_rightConf,
+						  m_dcBias);
     }
 
     public double getLearnedLoss() {
