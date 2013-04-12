@@ -8,14 +8,14 @@ import javaboost.boosting.*;
 
 public class LRTest {
     public static void main(String[] args) {
-	Dataset data = gen(200, 10, 1);
+	Dataset data = gen(600, 10, 1);
 	Dataset test = gen(300, 10, 2);
 	ArrayList<WeakLearner> wl = new ArrayList<WeakLearner>();
 	float[] arr = new float[200];
 	for(int i = 0; i < 200; ++i)
 	    arr[i] = (float)i/100;
 	for(int i = 0; i < 10; ++i) {
-	    wl.add(new SingleFeatureMultiThresholdedToSigmoidLearner(i, arr, false, 1.5));
+	    wl.add(new SingleFeatureMultiThresholdedToSigmoidLearner(i, arr, false, 1.5, true));
 	    //wl.add(new SingleFeatureThresholdedLearner(i, (float)0.5));
 	}
 	//LogitBoost.trainConcurrent(data.m_data, data.m_labels, wl, 100, 4, null);
@@ -23,19 +23,22 @@ public class LRTest {
 	ac.listClassifiers();
 	/*
 	double[][] contributions = ac.getContributions(data.m_data);
-	for(int i = 0; i < contributions.length; ++i) {
+	/*	for(int i = 0; i < contributions.length; ++i) {
 	    for(int j = 0; j < contributions[0].length; ++j) {
 		System.out.print(contributions[i][j]+" ");
 	    }
 	    System.out.println();
+
 	    }
 
+
 	int[] rel = ac.getColumnsUsed();
-	for(int i = 0; i < rel.length; ++i) {
+	/*for(int i = 0; i < rel.length; ++i) {
 	    System.out.print(rel[i] + " ");
 	}
 	System.out.println();
 	*/
+
 	double[] output = ac.classify(test.m_data);
 	int correct = 0;
 	for(int i = 0; i < test.m_data.length; ++i) {
@@ -45,6 +48,7 @@ public class LRTest {
 
 	}
 	System.out.println(correct);
+
 	System.exit(0);
     }
 
