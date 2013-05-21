@@ -31,11 +31,11 @@ void test_boost(float** data, int* labels, int N, int NC) {
     list< WeakLearner * > learners;
     std::vector<float> threshes;
     for(int i = 0; i < 100; ++i) {
-        threshes.push_back(0.8f + i*0.01);
+        threshes.push_back(0.95f + i*0.001);
     }
 
     for(int i = 0; i < NC; ++i) {
-        learners.push_back( new SingleFeatureMultiThresholdedSigmoidLearner(i, threshes, 0.00001f) );
+        learners.push_back( new SingleFeatureMultiThresholdedSigmoidLearner(i, threshes, 0.001f) );
     }
     Classifier* c = boosting::train(data, labels, N, NC, learners, 2000);
     float* output = new float[N];
@@ -52,7 +52,7 @@ void test_boost(float** data, int* labels, int N, int NC) {
 
 
 int main() {
-    int N = 1000;
+    int N = 10;
     int NC = 40;
     float** data = new float*[N];
     int* labels = new int[N];
@@ -66,7 +66,7 @@ int main() {
             if(rand() % 100 > 200) {
                 data[i][j] = -std::numeric_limits<float>::infinity();
             } else {
-                data[i][j] = (rand() %100)/100.0f + 1.1;
+                data[i][j] = (rand() %100)/100.0f + 0.9;
             }
         }
         labels[i] =  1;

@@ -23,7 +23,11 @@ namespace boosting
         float* currConfs = new float[numExamples];
         float* confs = new float[numExamples];
         float* labelDotConfs = new float[numExamples];
-
+        for(int i = 0; i < numExamples; ++i) {
+            currConfs[i] = 0;
+            confs[i] = 0;
+            labelDotConfs[i] = 0;
+        }
 
         for(int t = 0; t < maxIterations; ++t) {
             WeakLearner* bestLearner = NULL;
