@@ -1,7 +1,10 @@
 CC=g++
 CFLAGS=-c -g -Wall -Werror
 
-weaklearningtest: additiveclassifier.o weaklearningtest.o singlefeaturemultithresholdedsigmoidlearner.o singlefeaturesigmoidclassifier.o utils.o boost.o
+libsigboost: additiveclassifier.o singlefeaturemultithresholdedsigmoidlearner.o singlefeaturesigmoidclassifier.o utils.o boost.o 
+	ar rcs libsigboost.a additiveclassifier.o singlefeaturemultithresholdedsigmoidlearner.o singlefeaturesigmoidclassifier.o utils.o boost.o 
+
+weaklearningtest: additiveclassifier.o weaklearningtest.o singlefeaturemultithresholdedsigmoidlearner.o singlefeaturesigmoidclassifier.o utils.o boost.o 
 	$(CC) weaklearningtest.o singlefeaturemultithresholdedsigmoidlearner.o singlefeaturesigmoidclassifier.o utils.o boost.o additiveclassifier.o -o weaklearningtest
 
 utilstest: utilstest.o utils.o
