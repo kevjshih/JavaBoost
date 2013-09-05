@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -g -Wall -Werror
+CFLAGS=-fPIC -c -g -Wall -Werror
 
 libsigboost: additiveclassifier.o singlefeaturemultithresholdedsigmoidlearner.o singlefeaturesigmoidclassifier.o utils.o boost.o 
 	ar rcs libsigboost.a additiveclassifier.o singlefeaturemultithresholdedsigmoidlearner.o singlefeaturesigmoidclassifier.o utils.o boost.o 

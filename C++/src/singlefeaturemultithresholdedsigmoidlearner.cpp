@@ -133,7 +133,7 @@ train(float ** data, const int* labels, const float* weights, int N, int NC) {
 Classifier* SingleFeatureMultiThresholdedSigmoidLearner::
 buildLearnedClassifier() {
     return new SingleFeatureSigmoidClassifier(m_featColumn,
-                                              m_chosenThreshold,
+                                              m_thresholds[m_chosenThreshold],
                                               m_smoothingW,
                                               m_lessConf,
                                               m_grtrConf,

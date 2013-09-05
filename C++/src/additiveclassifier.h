@@ -3,7 +3,7 @@
 
 #include "classifier.h"
 #include <list>
-
+#include <vector>
 
 class AdditiveClassifier: public Classifier {
     std::list< Classifier* > m_classifiers;
@@ -12,6 +12,7 @@ class AdditiveClassifier: public Classifier {
 
     virtual void classify(float* output, float ** data, int N, int NC);
 
+	std::vector< std::vector< float> > getParams();
     ~AdditiveClassifier();
 };
 

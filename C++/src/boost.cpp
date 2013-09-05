@@ -61,9 +61,7 @@ namespace boosting
             }
             printf("Iteration: %d weighted loss: %f\n", t, bestLoss);
             utils::normalizeVector(weights, numExamples);
-
         }
-
 
         delete[] confs;
         delete[] currConfs;

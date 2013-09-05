@@ -24,7 +24,7 @@ class SingleFeatureSigmoidClassifier : public Classifier {
 
     static void classify(float* output, float ** data, int N, int NC, float lessConf, float grtrConf, float dcBias, float smoothingW, float threshold, int featColumn);
 
-
+	std::vector< std::vector<float> > getParams();
 };
 
 

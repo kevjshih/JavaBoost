@@ -2,6 +2,8 @@
 #include "utils.h"
 #include <cmath>
 
+using std::vector;
+
 SingleFeatureSigmoidClassifier::
 SingleFeatureSigmoidClassifier(int featColumn,
                                float threshold,
@@ -29,4 +31,18 @@ classify(float* output, float ** data, int N, int NC, float lessConf, float grtr
             output[i] = bias + alpha/(1+exp(-smoothingW*(data[i][featColumn]-threshold)));
         }
     }
+}
+
+vector< vector<float> > SingleFeatureSigmoidClassifier::
+getParams() {
+   vector< vector< float > > all_params;
+   vector<float> params;
+   params.push_back((float)m_featColumn);
+   params.push_back(m_threshold);
+   params.push_back(m_smoothW);
+   params.push_back(m_lessConf);
+   params.push_back(m_grtrConf);
+   params.push_back(m_dcBias);
+   all_params.push_back(params);
+   return all_params;
 }

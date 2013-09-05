@@ -8,7 +8,7 @@
 #include <list>
 
 namespace boosting{
-   // be sure to delete the classifier output
+
     AdditiveClassifier* train(float** data,
                              int* labels,
                              int numExamples,
