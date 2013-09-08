@@ -33,8 +33,9 @@ namespace utils{
             }
         }
 
-        float posWt = 0.5f/numPos;
-        float negWt = 0.5f/numNeg;
+        float posWt = 0.5f/((float)numPos);
+        float negWt = 0.5f/((float)numNeg);
+
         for(int i =0; i < numElts; ++i) {
             if(labels[i] == 1) {
                 weights[i] = posWt;

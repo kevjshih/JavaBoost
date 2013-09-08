@@ -21,6 +21,7 @@ train(float ** data, const int* labels, const float* weights, int N, int NC) {
     m_lessConf = 0;
     m_grtrConf = 0;
     m_dcBias = 0;
+	m_storedLoss = 1000;
 
     float regularizer = 1.0f/N;
     float** dataLabelsSorted = new float*[N];
@@ -93,7 +94,7 @@ train(float ** data, const int* labels, const float* weights, int N, int NC) {
         grtrConfs[t] = 0.5f*log((regularizer+grtrPos)/(regularizer+grtrNeg));
 
         // static function call
-        SingleFeatureSigmoidClassifier::classify(output, data, N, NC, lessConfs[t], grtrConfs[t], m_dcBias, m_smoothingW, m_thresholds[t], m_featColumn);
+        SingleFeatureSigmoidClassifier::classify(output, dataLabelsSorted, N, 3, lessConfs[t], grtrConfs[t], m_dcBias, m_smoothingW, m_thresholds[t], 0);
         loss = 0;
         // compute the logistic loss for threshold
         for(int i = 0; i < N; ++i) {
