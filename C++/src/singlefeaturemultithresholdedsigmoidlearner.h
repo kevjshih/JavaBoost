@@ -16,6 +16,7 @@ class SingleFeatureMultiThresholdedSigmoidLearner : public WeakLearner {
     SingleFeatureMultiThresholdedSigmoidLearner(const int featColumn, const std::vector<float> thresholds, float smoothingParam);
     virtual float  train(float ** data, const int* labels, const float* weights, int N, int NC);
     virtual Classifier* buildLearnedClassifier();
+
     virtual ~SingleFeatureMultiThresholdedSigmoidLearner() {}
 
 

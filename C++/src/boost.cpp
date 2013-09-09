@@ -4,14 +4,16 @@
 #include "cstdio"
 #include <cfloat>
 #include <cmath>
+
 using std::list;
+using std::vector;
 namespace boosting
 {
     AdditiveClassifier* train(float** data,
                              int* labels,
                              int numExamples,
                              int numColumns,
-                             std::list< WeakLearner *> learners,
+                             std::vector< WeakLearner *> learners,
                              int maxIterations) {
 
         list< Classifier* > output;
@@ -28,24 +30,38 @@ namespace boosting
             confs[i] = 0;
             labelDotConfs[i] = 0;
         }
+		float* learner_losses = new float[learners.size()];
 
         for(int t = 0; t < maxIterations; ++t) {
             WeakLearner* bestLearner = NULL;
             float bestLoss = FLT_MAX;
 
-            for(list< WeakLearner * >::iterator it =  learners.begin(); it != learners.end(); ++it) {
-                float currLoss = (*it)->train(data, labels, weights, numExamples, numColumns);
+
+            #pragma omp parallel for
+			for(unsigned int iter = 0; iter < learners.size(); ++iter) {
+			   learner_losses[iter] = learners[iter]->train(data, labels, weights, numExamples, numColumns);
+			}
+
+			for(unsigned int iter = 0; iter < learners.size(); ++iter) {
+			   float currLoss = learner_losses[iter];
                 if(currLoss < bestLoss) {
                     bestLoss = currLoss;
-                    bestLearner = *it;
+                    bestLearner = learners[iter];
                 }
-            }
+			}
+            /* for(list< WeakLearner * >::iterator it =  learners.begin(); it != learners.end(); ++it) { */
+            /*     float currLoss = (*it)->train(data, labels, weights, numExamples, numColumns); */
+            /*     if(currLoss < bestLoss) { */
+            /*         bestLoss = currLoss; */
+            /*         bestLearner = *it; */
+            /*     } */
+            /* } */
             // pick the best learner and construct corresponding classifier
             Classifier* bestClassifier = bestLearner->buildLearnedClassifier();
             output.push_back(bestClassifier);
             bestClassifier->classify(currConfs, data, numExamples, numColumns);
 
-            // update weights
+            // update weights (confs = confs + currConfs)
             utils::addVectorsInPlace(confs, currConfs, numExamples);
 
             for(int j = 0; j < numExamples; ++j) {
@@ -67,6 +83,7 @@ namespace boosting
         delete[] currConfs;
         delete[] labelDotConfs;
         delete[] weights;
+		delete[] learner_losses;
         return new AdditiveClassifier(output);
     }
 

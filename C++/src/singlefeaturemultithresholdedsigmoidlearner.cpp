@@ -131,6 +131,9 @@ train(float ** data, const int* labels, const float* weights, int N, int NC) {
 
 }
 
+
+
+
 Classifier* SingleFeatureMultiThresholdedSigmoidLearner::
 buildLearnedClassifier() {
     return new SingleFeatureSigmoidClassifier(m_featColumn,

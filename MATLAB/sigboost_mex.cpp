@@ -19,7 +19,7 @@ using std::list;
 using std::vector;
 
 Classifier* run_boost(float** data, int* labels, int M, int N, vector< vector<float> > threshes, float* smooth_wts, int numIter) {
-   list< WeakLearner * > learners;
+   vector< WeakLearner * > learners;
 
    for(int i = 0; i < N; ++i) {
 	  learners.push_back(new SingleFeatureMultiThresholdedSigmoidLearner(i, threshes[i], smooth_wts[i]));
@@ -28,7 +28,7 @@ Classifier* run_boost(float** data, int* labels, int M, int N, vector< vector<fl
    Classifier* c = boosting::train(data, labels, M, N, learners, numIter);
 
 
-   for(std::list<WeakLearner* >::iterator it = learners.begin(); it != learners.end(); ++it) {
+   for(std::vector<WeakLearner* >::iterator it = learners.begin(); it != learners.end(); ++it) {
 	  delete (*it);
    }
    return c;
